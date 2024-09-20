@@ -57,11 +57,12 @@ public class SecurityConfig {
                 );
 
         //경로별 인가 작업
+        // api 테스트를 위해 모든 경로를 열어놓았습니다
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/h2-console/*").permitAll()
+                        .requestMatchers("/*").permitAll()
                         .requestMatchers("/my").hasRole("USER")
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         //세션 설정 : STATELESS
         http

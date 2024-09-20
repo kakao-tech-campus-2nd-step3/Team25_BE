@@ -1,7 +1,17 @@
 package com.team25.backend.entity;
 
-import lombok.*;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -25,6 +35,22 @@ public class WorkingHour {
     private Manager manager;
 
     public enum Day {
-        월, 화, 수, 목, 금, 토, 일
+        MONDAY("월"),
+        TUESDAY("화"),
+        WEDNESDAY("수"),
+        THURSDAY("목"),
+        FRIDAY("금"),
+        SATURDAY("토"),
+        SUNDAY("일");
+
+        private final String koreanName;
+
+        Day(String koreanName) {
+            this.koreanName = koreanName;
+        }
+
+        public String getKoreanName() {
+            return koreanName;
+        }
     }
 }

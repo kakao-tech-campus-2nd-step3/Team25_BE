@@ -3,11 +3,10 @@ package com.team25.backend.service;
 import com.team25.backend.dto.response.ManagerResponse;
 import com.team25.backend.entity.Manager;
 import com.team25.backend.repository.ManagerRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

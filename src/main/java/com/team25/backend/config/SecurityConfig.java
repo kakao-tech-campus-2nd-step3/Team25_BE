@@ -8,9 +8,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @Configuration
 @EnableWebSecurity
@@ -54,11 +57,12 @@ public class SecurityConfig {
                 );
 
         //경로별 인가 작업
+        // api 테스트를 위해 모든 경로를 열어놓았습니다
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/*").permitAll()
                         .requestMatchers("/my").hasRole("USER")
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         //세션 설정 : STATELESS
         http
@@ -67,5 +71,14 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers("/favicon.ico")
+                .requestMatchers("/error")
+                .requestMatchers(toH2Console());
+    }
+
 }
 

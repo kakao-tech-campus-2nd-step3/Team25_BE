@@ -1,7 +1,7 @@
 package com.team25.backend.controller;
 
 import com.team25.backend.dto.response.ApiResponse;
-import com.team25.backend.dto.response.ManagerResponse;
+import com.team25.backend.dto.response.ManagerByDateAndRegionResponse;
 import com.team25.backend.service.ManagerService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +18,13 @@ public class ManagerController {
     private final ManagerService managerService;
 
     @GetMapping("/api/managers")
-    public ResponseEntity<ApiResponse<List<ManagerResponse>>> getManagers(
+    public ResponseEntity<ApiResponse<List<ManagerByDateAndRegionResponse>>> getManagers(
         @RequestParam("date") String date,
         @RequestParam("region") String region) {
 
-        List<ManagerResponse> managerResponses = managerService.getManagersByRegion(region);
+        List<ManagerByDateAndRegionResponse> managerResponses = managerService.getManagersByDateAndRegion(date, region);
 
-        ApiResponse<List<ManagerResponse>> response = ApiResponse.<List<ManagerResponse>>builder()
+        ApiResponse<List<ManagerByDateAndRegionResponse>> response = ApiResponse.<List<ManagerByDateAndRegionResponse>>builder()
             .status(true)
             .message("매니저 조회에 성공하였습니다.")
             .data(managerResponses)

@@ -47,11 +47,7 @@ public class PaymentService {
 
     // 빌링키 발급
     public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userId) throws Exception {
-        String plainData = String.format("cardNo=%s&expYear=%s&expMonth=%s&idNo=%s&cardPw=%s",
-                requestDto.getCardNo(), requestDto.getExpYear(), requestDto.getExpMonth(),
-                requestDto.getIdNo(), requestDto.getCardPw());
-
-        String encData = EncryptionUtil.encryptCardData(plainData, secretKey);
+        String encData = requestDto.getEncData();
         String orderId = generateOrderId();
 
         HttpHeaders headers = new HttpHeaders();

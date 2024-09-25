@@ -44,6 +44,14 @@ public class PaymentController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // 빌링키 존재 유무 확인
+    @GetMapping("/billing-key/exists")
+    public ResponseEntity<Boolean> billingKeyExists() {
+        String userId = getCurrentUserId();
+        boolean exists = paymentService.billingKeyExists(userId);
+        return ResponseEntity.ok(exists);
+    }
+
     private String getCurrentUserId() {
         // 인증된 사용자의 식별자를 반환해야 한다
         return "user@example.com";

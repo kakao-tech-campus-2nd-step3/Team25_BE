@@ -90,6 +90,7 @@ public class PaymentService {
             billingKey.setCardCode(responseDto.getCardCode());
             billingKey.setCardName(responseDto.getCardName());
             billingKey.setUserId(userId);
+            billingKey.setOrderId(orderId);
             billingKeyRepository.save(billingKey);
         }
 

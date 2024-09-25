@@ -17,4 +17,5 @@ public class BillingKey {
     private String cardCode;
     private String cardName;
     private String userId; // 사용자 식별자 (예: 이메일, 아이디 등)
+    private String orderId; // 상점 거래 고유번호 (빌링키 삭제 시 사용)
 }

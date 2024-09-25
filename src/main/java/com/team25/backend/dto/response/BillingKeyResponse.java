@@ -13,4 +13,5 @@ public class BillingKeyResponse {
     private String cardCode;
     private String cardName;
     private String tid;
+    private String orderId;
 }

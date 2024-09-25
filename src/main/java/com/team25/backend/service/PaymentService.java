@@ -45,6 +45,11 @@ public class PaymentService {
         return "Basic " + encodedCredentials;
     }
 
+    // 빌링키 존재 여부 확인
+    public boolean billingKeyExists(String userId) {
+        return billingKeyRepository.findByUserId(userId).isPresent();
+    }
+
     // 빌링키 발급
     public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userId) throws Exception {
         String encData = requestDto.getEncData();

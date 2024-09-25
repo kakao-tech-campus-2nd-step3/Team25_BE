@@ -34,17 +34,6 @@ public class User {
     @Column(name = "username", length = 100, nullable = false)
     private String username;
 
-    @Column(name = "email", length = 100, nullable = false)
-    private String email;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Role role;
-
-    // 공통 속성 및 메서드
-
-    // 역할(Role)을 위한 Enum
-    public enum Role {
-        ROLE_USER, ROLE_MANAGER
-    }
+    private String role;
 }

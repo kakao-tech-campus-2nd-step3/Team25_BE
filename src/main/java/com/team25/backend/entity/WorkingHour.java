@@ -8,6 +8,7 @@ import com.team25.backend.enumdomain.Day;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 public class WorkingHour {
 

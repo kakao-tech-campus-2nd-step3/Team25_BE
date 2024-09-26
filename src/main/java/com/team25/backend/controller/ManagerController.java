@@ -1,5 +1,6 @@
 package com.team25.backend.controller;
 
+import com.team25.backend.dto.request.ManagerCommentUpdateRequest;
 import com.team25.backend.dto.request.ManagerCreateRequest;
 import com.team25.backend.dto.request.ManagerProfileImageUpdateRequest;
 import com.team25.backend.dto.request.ManagerWorkingHourRequest;
@@ -88,6 +89,22 @@ public class ManagerController {
             ApiResponse.<ManagerProfileImageUpdateResponse>builder()
                 .status(true)
                 .message("프로필 사진을 성공적으로 변경했습니다.")
+                .data(response)
+                .build()
+        );
+    }
+
+    @PatchMapping("/api/manager/comment/{manager_id}")
+    public ResponseEntity<ApiResponse<ManagerCommentUpdateResponse>> updateComment(
+        @PathVariable("manager_id") Long managerId,
+        @RequestBody ManagerCommentUpdateRequest request) {
+
+        ManagerCommentUpdateResponse response = managerService.updateComment(managerId, request);
+
+        return ResponseEntity.ok(
+            ApiResponse.<ManagerCommentUpdateResponse>builder()
+                .status(true)
+                .message("코멘트를 성공적으로 변경했습니다.")
                 .data(response)
                 .build()
         );

@@ -1,11 +1,9 @@
 package com.team25.backend.service;
 
 import com.team25.backend.dto.request.ManagerCreateRequest;
+import com.team25.backend.dto.request.ManagerProfileImageUpdateRequest;
 import com.team25.backend.dto.request.ManagerWorkingHourRequest;
-import com.team25.backend.dto.response.ManagerByDateAndRegionResponse;
-import com.team25.backend.dto.response.ManagerCreateResponse;
-import com.team25.backend.dto.response.ManagerProfileResponse;
-import com.team25.backend.dto.response.ManagerWorkingHourResponse;
+import com.team25.backend.dto.response.*;
 import com.team25.backend.entity.Manager;
 import com.team25.backend.entity.Certificate;
 import com.team25.backend.entity.WorkingHour;
@@ -21,9 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,6 +129,24 @@ public class ManagerService {
             Day.fromKoreanName(request.getDay());
         } catch (IllegalArgumentException e) {
             throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
+        }
+    }
+
+    public ManagerProfileImageUpdateResponse updateProfileImage(Long managerId, ManagerProfileImageUpdateRequest request) {
+        Manager manager = managerRepository.findById(managerId)
+            .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
+
+        validateProfileImage(request.getProfileImage());
+
+        manager.setProfileImage(request.getProfileImage());
+        managerRepository.save(manager);
+
+        return ManagerProfileImageUpdateResponse.fromEntity(manager);
+    }
+
+    private void validateProfileImage(String profileImage) {
+        if (profileImage == null || profileImage.isEmpty()) {
+            throw new ManagerException(ManagerErrorCode.INVALID_PROFILE_IMAGE);
         }
     }
 }

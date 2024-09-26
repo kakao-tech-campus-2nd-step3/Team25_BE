@@ -1,5 +1,6 @@
 package com.team25.backend.controller;
 
+import com.team25.backend.dto.CustomUserDetails;
 import com.team25.backend.dto.request.BillingKeyRequest;
 import com.team25.backend.dto.request.PaymentRequest;
 import com.team25.backend.dto.request.ExpireBillingKeyRequest;
@@ -8,6 +9,8 @@ import com.team25.backend.dto.response.PaymentResponse;
 import com.team25.backend.dto.response.ExpireBillingKeyResponse;
 import com.team25.backend.service.PaymentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -53,7 +56,18 @@ public class PaymentController {
     }
 
     private String getCurrentUserId() {
-        // 인증된 사용자의 식별자를 반환해야 한다
-        return "user@example.com";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("사용자가 인증되지 않았습니다.");
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomUserDetails customUser) {
+            return customUser.getUsername(); // UUID로 수정 필요
+        } else {
+            throw new RuntimeException("인증 정보가 CustomUserDetails 타입이 아닙니다.");
+        }
     }
 }

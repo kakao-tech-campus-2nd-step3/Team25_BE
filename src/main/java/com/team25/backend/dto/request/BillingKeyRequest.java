@@ -1,11 +1,6 @@
 package com.team25.backend.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class BillingKeyRequest {
-    private String encData;
-    private String cardAlias;
-}
+public record BillingKeyRequest(
+        String encData,
+        String cardAlias
+) {}

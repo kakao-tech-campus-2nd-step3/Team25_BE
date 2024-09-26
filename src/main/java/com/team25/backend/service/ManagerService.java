@@ -40,7 +40,7 @@ public class ManagerService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = LocalDate.parse(date, formatter);
-        Day day = convertToDayEnum(localDate.getDayOfWeek().toString());
+        Day day = Day.fromEnglishName(localDate.getDayOfWeek().toString());
 
         List<Manager> managers = managerRepository.findByWorkingHoursDayAndWorkingRegion(day, region);
 
@@ -66,19 +66,6 @@ public class ManagerService {
 
     private boolean regionExists(String region) {
         return List.of("Seoul", "Busan", "Daegu").contains(region);
-    }
-
-    private Day convertToDayEnum(String dayOfWeek) {
-        return switch (dayOfWeek.toUpperCase()) {
-            case "MONDAY" -> Day.MONDAY;
-            case "TUESDAY" -> Day.TUESDAY;
-            case "WEDNESDAY" -> Day.WEDNESDAY;
-            case "THURSDAY" -> Day.THURSDAY;
-            case "FRIDAY" -> Day.FRIDAY;
-            case "SATURDAY" -> Day.SATURDAY;
-            case "SUNDAY" -> Day.SUNDAY;
-            default -> throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
-        };
     }
 
     public ManagerCreateResponse createManager(ManagerCreateRequest request) {
@@ -123,7 +110,7 @@ public class ManagerService {
         validateWorkingHourRequest(request);
 
         WorkingHour workingHour = WorkingHour.builder()
-            .day(dayMap.get(request.getDay()))
+            .day(Day.fromKoreanName(request.getDay()))
             .startTime(request.getStartTime())
             .endTime(request.getEndTime())
             .manager(manager)
@@ -142,20 +129,10 @@ public class ManagerService {
             throw new ManagerException(ManagerErrorCode.INVALID_WORKING_HOUR_FORMAT);
         }
 
-        if (!dayMap.containsKey(request.getDay())) {
+        try {
+            Day.fromKoreanName(request.getDay());
+        } catch (IllegalArgumentException e) {
             throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
         }
-    }
-
-
-    private static final Map<String, Day> dayMap = new HashMap<>();
-    static {
-        dayMap.put("월", Day.MONDAY);
-        dayMap.put("화", Day.TUESDAY);
-        dayMap.put("수", Day.WEDNESDAY);
-        dayMap.put("목", Day.THURSDAY);
-        dayMap.put("금", Day.FRIDAY);
-        dayMap.put("토", Day.SATURDAY);
-        dayMap.put("일", Day.SUNDAY);
     }
 }

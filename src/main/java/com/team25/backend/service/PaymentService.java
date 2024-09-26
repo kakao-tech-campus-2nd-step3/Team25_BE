@@ -45,13 +45,14 @@ public class PaymentService {
         return "Basic " + encodedCredentials;
     }
 
+    // 빌링키 존재 여부 확인
+    public boolean billingKeyExists(String userId) {
+        return billingKeyRepository.findByUserId(userId).isPresent();
+    }
+
     // 빌링키 발급
     public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userId) throws Exception {
-        String plainData = String.format("cardNo=%s&expYear=%s&expMonth=%s&idNo=%s&cardPw=%s",
-                requestDto.getCardNo(), requestDto.getExpYear(), requestDto.getExpMonth(),
-                requestDto.getIdNo(), requestDto.getCardPw());
-
-        String encData = EncryptionUtil.encryptCardData(plainData, secretKey);
+        String encData = requestDto.getEncData();
         String orderId = generateOrderId();
 
         HttpHeaders headers = new HttpHeaders();
@@ -89,6 +90,7 @@ public class PaymentService {
             billingKey.setCardCode(responseDto.getCardCode());
             billingKey.setCardName(responseDto.getCardName());
             billingKey.setUserId(userId);
+            billingKey.setOrderId(orderId);
             billingKeyRepository.save(billingKey);
         }
 

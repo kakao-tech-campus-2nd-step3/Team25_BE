@@ -97,7 +97,7 @@ public class ManagerService {
         return ManagerProfileResponse.fromEntity(manager);
     }
 
-    public ManagerWorkingHourResponse addWorkingHour(Long managerId, ManagerWorkingHourRequest request) {
+    public ManagerWorkingHourCreateResponse addWorkingHour(Long managerId, ManagerWorkingHourCreateRequest request) {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
@@ -112,10 +112,10 @@ public class ManagerService {
 
         workingHourRepository.save(workingHour);
 
-        return ManagerWorkingHourResponse.builder().build();
+        return ManagerWorkingHourCreateResponse.builder().build();
     }
 
-    private void validateWorkingHourRequest(ManagerWorkingHourRequest request) {
+    private void validateWorkingHourRequest(ManagerWorkingHourCreateRequest request) {
         validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
     }
 
@@ -212,5 +212,21 @@ public class ManagerService {
 
     private void validateWorkingHourRequest(ManagerWorkingHourUpdateRequest request) {
         validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
+    }
+
+    public ManagerWorkingHourDeleteResponse deleteWorkingHour(Long managerId, Long workingHoursId) {
+        Manager manager = managerRepository.findById(managerId)
+            .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
+
+        WorkingHour workingHour = workingHourRepository.findById(workingHoursId)
+            .orElseThrow(() -> new ManagerException(ManagerErrorCode.WORKING_HOUR_NOT_FOUND));
+
+        if (!workingHour.getManager().getManagerId().equals(managerId)) {
+            throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        workingHourRepository.delete(workingHour);
+
+        return ManagerWorkingHourDeleteResponse.builder().build();
     }
 }

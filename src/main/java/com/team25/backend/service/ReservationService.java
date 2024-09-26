@@ -54,19 +54,19 @@ public class ReservationService {
         CancelReason cancelReason = Arrays.stream(CancelReason.values()) // 해당 취소 이유를 Enum 타입에서 선별
             .filter(reason -> reason.getKrName().equals(cancelDto.cancelReason())).findFirst()
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 취소 타입입니다."));
-        addCancelResasonAndDetail(canceledReservation, cancelReason, cancelDto.cancelDetail()); // 예약에 취소 사유와 상세 정보 추가
+        addCancelReasonAndDetail(canceledReservation, cancelReason, cancelDto.cancelDetail()); // 예약에 취소 사유와 상세 정보 추가
         reservationRepository.save(canceledReservation);
         return canceledReservation;
     }
 
-    private static void addCancelResasonAndDetail(Reservation canceledReservation,
+    private static void addCancelReasonAndDetail(Reservation canceledReservation,
         CancelReason cancelReason, String cancelDetail) {
         canceledReservation.setCancelReason(cancelReason);
         canceledReservation.setCancelDetail(cancelDetail);
     }
 
     private static void checkDetailIsNull(CancelDto cancelDto) {
-        if (cancelDto.cancelDetail().isBlank()) { // isBlank() -> 공백만 입력해도 blank로 처리됨
+        if (cancelDto.cancelDetail().isBlank()) {
             throw new IllegalArgumentException("변심 이유를 반드시 선택해야 합니다.");
         }
     }

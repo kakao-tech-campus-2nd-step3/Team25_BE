@@ -1,9 +1,6 @@
 package com.team25.backend.controller;
 
-import com.team25.backend.dto.request.ManagerCommentUpdateRequest;
-import com.team25.backend.dto.request.ManagerCreateRequest;
-import com.team25.backend.dto.request.ManagerProfileImageUpdateRequest;
-import com.team25.backend.dto.request.ManagerWorkingHourRequest;
+import com.team25.backend.dto.request.*;
 import com.team25.backend.dto.response.*;
 import com.team25.backend.service.ManagerService;
 import java.util.List;
@@ -105,6 +102,22 @@ public class ManagerController {
             ApiResponse.<ManagerCommentUpdateResponse>builder()
                 .status(true)
                 .message("코멘트를 성공적으로 변경했습니다.")
+                .data(response)
+                .build()
+        );
+    }
+
+    @PatchMapping("/api/manager/location/{manager_id}")
+    public ResponseEntity<ApiResponse<ManagerLocationUpdateResponse>> updateLocation(
+        @PathVariable("manager_id") Long managerId,
+        @RequestBody ManagerLocationUpdateRequest request) {
+
+        ManagerLocationUpdateResponse response = managerService.updateLocation(managerId, request);
+
+        return ResponseEntity.ok(
+            ApiResponse.<ManagerLocationUpdateResponse>builder()
+                .status(true)
+                .message("근무 지역을 성공적으로 변경했습니다.")
                 .data(response)
                 .build()
         );

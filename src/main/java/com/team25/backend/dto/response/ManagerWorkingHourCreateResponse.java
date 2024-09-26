@@ -7,5 +7,5 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class ManagerWorkingHourResponse {
+public class ManagerWorkingHourCreateResponse {
 }

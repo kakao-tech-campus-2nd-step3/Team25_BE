@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ManagerWorkingHourRequest {
+public class ManagerWorkingHourCreateRequest {
     private String day;
     private String startTime;
     private String endTime;

@@ -1,16 +1,10 @@
 package com.team25.backend.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,14 +13,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
-public class Manager {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long managerId;
-
+@PrimaryKeyJoinColumn(name = "manager_id", referencedColumnName = "user_id")
+public class Manager extends User{
     @Column(length = 50)
     private String managerName;
 

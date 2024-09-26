@@ -49,26 +49,26 @@ public class ManagerController {
     public ResponseEntity<ApiResponse<ManagerProfileResponse>> getManagerProfile(
         @PathVariable("manager_id") Long managerId) {
 
-        ManagerProfileResponse profileResponse = managerService.getManagerProfile(managerId);
+        ManagerProfileResponse response = managerService.getManagerProfile(managerId);
 
         return ResponseEntity.ok(
             ApiResponse.<ManagerProfileResponse>builder()
                 .status(true)
                 .message("프로필 조회를 성공했습니다.")
-                .data(profileResponse)
+                .data(response)
                 .build()
         );
     }
 
     @PostMapping("/api/manager/time/{manager_id}")
-    public ResponseEntity<ApiResponse<ManagerWorkingHourResponse>> addWorkingHour(
+    public ResponseEntity<ApiResponse<ManagerWorkingHourCreateResponse>> addWorkingHour(
         @PathVariable("manager_id") Long managerId,
-        @RequestBody ManagerWorkingHourRequest request) {
+        @RequestBody ManagerWorkingHourCreateRequest request) {
 
-        ManagerWorkingHourResponse response = managerService.addWorkingHour(managerId, request);
+        ManagerWorkingHourCreateResponse response = managerService.addWorkingHour(managerId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.<ManagerWorkingHourResponse>builder()
+            .body(ApiResponse.<ManagerWorkingHourCreateResponse>builder()
                 .status(true)
                 .message("근무 시간을 성공적으로 등록했습니다.")
                 .data(response)
@@ -135,6 +135,22 @@ public class ManagerController {
             ApiResponse.<ManagerWorkingHourUpdateResponse>builder()
                 .status(true)
                 .message("근무 시간을 성공적으로 변경했습니다.")
+                .data(response)
+                .build()
+        );
+    }
+
+    @DeleteMapping("/api/manager/time/{manager_id}/{working_hours_id}")
+    public ResponseEntity<ApiResponse<ManagerWorkingHourDeleteResponse>> deleteWorkingHour(
+        @PathVariable("manager_id") Long managerId,
+        @PathVariable("working_hours_id") Long workingHoursId) {
+
+        ManagerWorkingHourDeleteResponse response = managerService.deleteWorkingHour(managerId, workingHoursId);
+
+        return ResponseEntity.ok(
+            ApiResponse.<ManagerWorkingHourDeleteResponse>builder()
+                .status(true)
+                .message("근무 시간을 성공적으로 삭제했습니다.")
                 .data(response)
                 .build()
         );

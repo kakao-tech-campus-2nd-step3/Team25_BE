@@ -1,4 +1,4 @@
-package com.team25.backend.dto;
+package com.team25.backend.dto.request;
 
 import com.team25.backend.annotation.ValidArrivalLocation;
 import com.team25.backend.annotation.ValidDepartureLocation;
@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-public record ReservationDto(
+public record ReservationRequest(
     @ValidDepartureLocation String departureLocation,
     @ValidArrivalLocation String arrivalLocation,
     @NotNull(message = "예약 일시를 입력해 주십시오.")

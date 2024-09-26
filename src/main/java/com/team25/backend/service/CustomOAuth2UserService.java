@@ -2,7 +2,7 @@ package com.team25.backend.service;
 
 import com.team25.backend.dto.CustomOAuth2User;
 import com.team25.backend.dto.KakaoResponse;
-import com.team25.backend.dto.OAuth2Response;
+import com.team25.backend.dto.response.OAuth2Response;
 import com.team25.backend.dto.UserDto;
 import com.team25.backend.entity.User;
 import com.team25.backend.repository.UserRepository;

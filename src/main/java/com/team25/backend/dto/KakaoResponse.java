@@ -1,5 +1,6 @@
 package com.team25.backend.dto;
 
+import com.team25.backend.dto.response.OAuth2Response;
 import java.util.Map;
 
 public class KakaoResponse implements OAuth2Response {

@@ -1,6 +1,7 @@
 package com.team25.backend.controller;
 
 import com.team25.backend.dto.request.ManagerCreateRequest;
+import com.team25.backend.dto.request.ManagerProfileImageUpdateRequest;
 import com.team25.backend.dto.request.ManagerWorkingHourRequest;
 import com.team25.backend.dto.response.*;
 import com.team25.backend.service.ManagerService;
@@ -74,5 +75,21 @@ public class ManagerController {
                 .message("근무 시간을 성공적으로 등록했습니다.")
                 .data(response)
                 .build());
+    }
+
+    @PatchMapping("/api/manager/image/{manager_id}")
+    public ResponseEntity<ApiResponse<ManagerProfileImageUpdateResponse>> updateProfileImage(
+        @PathVariable("manager_id") Long managerId,
+        @RequestBody ManagerProfileImageUpdateRequest request) {
+
+        ManagerProfileImageUpdateResponse response = managerService.updateProfileImage(managerId, request);
+
+        return ResponseEntity.ok(
+            ApiResponse.<ManagerProfileImageUpdateResponse>builder()
+                .status(true)
+                .message("프로필 사진을 성공적으로 변경했습니다.")
+                .data(response)
+                .build()
+        );
     }
 }

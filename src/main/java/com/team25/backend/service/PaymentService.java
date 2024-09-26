@@ -103,17 +103,18 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Billing key not found"));
 
         String bid = billingKey.getBid();
+        String orderId = generateOrderId();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", getAuthorizationHeader());
 
         String ediDate = getEdiDate();
-        String signData = EncryptionUtil.generateSignData(requestDto.orderId(), bid, ediDate, secretKey);
+        String signData = EncryptionUtil.generateSignData(orderId, bid, ediDate, secretKey);
 
         // 요청 바디 생성
         Map<String, Object> body = new HashMap<>();
-        body.put("orderId", requestDto.orderId());
+        body.put("orderId", orderId);
         body.put("amount", requestDto.amount());
         body.put("goodsName", requestDto.goodsName());
         body.put("cardQuota", requestDto.cardQuota());

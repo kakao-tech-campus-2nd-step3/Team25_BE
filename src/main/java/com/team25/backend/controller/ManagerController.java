@@ -122,4 +122,21 @@ public class ManagerController {
                 .build()
         );
     }
+
+    @PatchMapping("/api/manager/time/{manager_id}/{working_hours_id}")
+    public ResponseEntity<ApiResponse<ManagerWorkingHourUpdateResponse>> updateWorkingHour(
+        @PathVariable("manager_id") Long managerId,
+        @PathVariable("working_hours_id") Long workingHoursId,
+        @RequestBody ManagerWorkingHourUpdateRequest request) {
+
+        ManagerWorkingHourUpdateResponse response = managerService.updateWorkingHour(managerId, workingHoursId, request);
+
+        return ResponseEntity.ok(
+            ApiResponse.<ManagerWorkingHourUpdateResponse>builder()
+                .status(true)
+                .message("근무 시간을 성공적으로 변경했습니다.")
+                .data(response)
+                .build()
+        );
+    }
 }

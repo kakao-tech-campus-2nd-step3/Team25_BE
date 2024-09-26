@@ -1,5 +1,6 @@
 package com.team25.backend.service;
 
+import com.team25.backend.dto.request.ManagerCommentUpdateRequest;
 import com.team25.backend.dto.request.ManagerCreateRequest;
 import com.team25.backend.dto.request.ManagerProfileImageUpdateRequest;
 import com.team25.backend.dto.request.ManagerWorkingHourRequest;
@@ -147,6 +148,24 @@ public class ManagerService {
     private void validateProfileImage(String profileImage) {
         if (profileImage == null || profileImage.isEmpty()) {
             throw new ManagerException(ManagerErrorCode.INVALID_PROFILE_IMAGE);
+        }
+    }
+
+    public ManagerCommentUpdateResponse updateComment(Long managerId, ManagerCommentUpdateRequest request) {
+        Manager manager = managerRepository.findById(managerId)
+            .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
+
+        validateComment(request.getComment());
+
+        manager.setComment(request.getComment());
+        managerRepository.save(manager);
+
+        return ManagerCommentUpdateResponse.fromEntity(manager);
+    }
+
+    private void validateComment(String comment) {
+        if (comment == null || comment.isEmpty()) {
+            throw new ManagerException(ManagerErrorCode.INVALID_COMMENT);
         }
     }
 }

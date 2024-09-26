@@ -16,7 +16,8 @@ public enum ManagerErrorCode {
     INVALID_WORKING_HOUR_FORMAT(HttpStatus.BAD_REQUEST, "근무 시작 시간은 숫자로 작성해야 합니다."),
     INVALID_PROFILE_IMAGE(HttpStatus.BAD_REQUEST, "프로필 사진 경로는 0자 이상이어야 합니다."),
     INVALID_COMMENT(HttpStatus.BAD_REQUEST, "코멘트는 0자 이상이어야 합니다."),
-    INVALID_WORKING_REGION(HttpStatus.BAD_REQUEST, "근무 지역은 0자 이상이어야 합니다.");
+    INVALID_WORKING_REGION(HttpStatus.BAD_REQUEST, "근무 지역은 0자 이상이어야 합니다."),
+    WORKING_HOUR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 근무시간입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

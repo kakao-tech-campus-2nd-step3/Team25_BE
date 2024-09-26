@@ -45,13 +45,14 @@ public class PaymentService {
         return "Basic " + encodedCredentials;
     }
 
+    // 빌링키 존재 여부 확인
+    public boolean billingKeyExists(String userId) {
+        return billingKeyRepository.findByUserId(userId).isPresent();
+    }
+
     // 빌링키 발급
     public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userId) throws Exception {
-        String plainData = String.format("cardNo=%s&expYear=%s&expMonth=%s&idNo=%s&cardPw=%s",
-                requestDto.getCardNo(), requestDto.getExpYear(), requestDto.getExpMonth(),
-                requestDto.getIdNo(), requestDto.getCardPw());
-
-        String encData = EncryptionUtil.encryptCardData(plainData, secretKey);
+        String encData = requestDto.encData();
         String orderId = generateOrderId();
 
         HttpHeaders headers = new HttpHeaders();
@@ -83,12 +84,13 @@ public class PaymentService {
             throw new RuntimeException("Failed to request billing key", e);
         }
 
-        if ("0000".equals(responseDto.getResultCode())) {
+        if ("0000".equals(responseDto.resultCode())) {
             BillingKey billingKey = new BillingKey();
-            billingKey.setBid(responseDto.getBid());
-            billingKey.setCardCode(responseDto.getCardCode());
-            billingKey.setCardName(responseDto.getCardName());
+            billingKey.setBid(responseDto.bid());
+            billingKey.setCardCode(responseDto.cardCode());
+            billingKey.setCardName(responseDto.cardName());
             billingKey.setUserId(userId);
+            billingKey.setOrderId(orderId);
             billingKeyRepository.save(billingKey);
         }
 
@@ -101,21 +103,22 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Billing key not found"));
 
         String bid = billingKey.getBid();
+        String orderId = generateOrderId();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", getAuthorizationHeader());
 
         String ediDate = getEdiDate();
-        String signData = EncryptionUtil.generateSignData(requestDto.getOrderId(), bid, ediDate, secretKey);
+        String signData = EncryptionUtil.generateSignData(orderId, bid, ediDate, secretKey);
 
         // 요청 바디 생성
         Map<String, Object> body = new HashMap<>();
-        body.put("orderId", requestDto.getOrderId());
-        body.put("amount", requestDto.getAmount());
-        body.put("goodsName", requestDto.getGoodsName());
-        body.put("cardQuota", requestDto.getCardQuota());
-        body.put("useShopInterest", requestDto.isUseShopInterest());
+        body.put("orderId", orderId);
+        body.put("amount", requestDto.amount());
+        body.put("goodsName", requestDto.goodsName());
+        body.put("cardQuota", requestDto.cardQuota());
+        body.put("useShopInterest", requestDto.useShopInterest());
         body.put("ediDate", ediDate);
         body.put("signData", signData);
 
@@ -149,11 +152,11 @@ public class PaymentService {
         headers.set("Authorization", getAuthorizationHeader());
 
         String ediDate = getEdiDate();
-        String signData = EncryptionUtil.generateSignData(requestDto.getOrderId(), bid, ediDate, secretKey);
+        String signData = EncryptionUtil.generateSignData(requestDto.orderId(), bid, ediDate, secretKey);
 
         // 요청 바디 생성
         Map<String, Object> body = new HashMap<>();
-        body.put("orderId", requestDto.getOrderId());
+        body.put("orderId", requestDto.orderId());
         body.put("ediDate", ediDate);
         body.put("signData", signData);
 

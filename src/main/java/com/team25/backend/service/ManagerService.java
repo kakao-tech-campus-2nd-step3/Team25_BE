@@ -1,9 +1,6 @@
 package com.team25.backend.service;
 
-import com.team25.backend.dto.request.ManagerCommentUpdateRequest;
-import com.team25.backend.dto.request.ManagerCreateRequest;
-import com.team25.backend.dto.request.ManagerProfileImageUpdateRequest;
-import com.team25.backend.dto.request.ManagerWorkingHourRequest;
+import com.team25.backend.dto.request.*;
 import com.team25.backend.dto.response.*;
 import com.team25.backend.entity.Manager;
 import com.team25.backend.entity.Certificate;
@@ -166,6 +163,24 @@ public class ManagerService {
     private void validateComment(String comment) {
         if (comment == null || comment.isEmpty()) {
             throw new ManagerException(ManagerErrorCode.INVALID_COMMENT);
+        }
+    }
+
+    public ManagerLocationUpdateResponse updateLocation(Long managerId, ManagerLocationUpdateRequest request) {
+        Manager manager = managerRepository.findById(managerId)
+            .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
+
+        validateWorkingRegion(request.getWorkingRegion());
+
+        manager.setWorkingRegion(request.getWorkingRegion());
+        managerRepository.save(manager);
+
+        return ManagerLocationUpdateResponse.fromEntity(manager);
+    }
+
+    private void validateWorkingRegion(String workingRegion) {
+        if (workingRegion == null || workingRegion.isEmpty()) {
+            throw new ManagerException(ManagerErrorCode.INVALID_WORKING_REGION);
         }
     }
 }

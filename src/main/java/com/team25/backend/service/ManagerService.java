@@ -19,7 +19,7 @@ public class ManagerService {
 
         return managers.stream()
             .map(manager -> ManagerResponse.builder()
-                .managerId(manager.getManagerId())
+                .managerId(manager.getId())
                 .name(manager.getManagerName())
                 .profileImage(manager.getProfileImage())
                 .career(manager.getCareer())

@@ -1,6 +1,7 @@
 package com.team25.backend.service;
 
-import com.team25.backend.dto.ReportDto;
+import com.team25.backend.dto.request.ReportRequest;
+import com.team25.backend.dto.response.ReportResponse;
 import com.team25.backend.entity.Report;
 import com.team25.backend.entity.Reservation;
 import com.team25.backend.repository.ReportRepository;
@@ -24,30 +25,30 @@ public class ReportService {
     }
 
     // 리포트 조회
-    public Report getReport(Long reservationId) {
+    public ReportResponse getReport(Long reservationId) {
         Reservation completedReservation = reservationRepository.findById(reservationId)
             .orElseThrow(IllegalArgumentException::new);
         Report report = reportRepository.findByReservation(
             completedReservation).orElseThrow(IllegalArgumentException::new);
-        if(completedReservation.getReports().getLast() == report) {
-            return report;
-        }
-        return completedReservation.getReports().getLast();
+        return new ReportResponse(report.getDoctorSummary(),
+            report.getFrequency(), report.getMealTime(),
+            report.getTimeOfDay());
     }
 
     // 환자 결과 리포트 생성
-    public Report createReport(Long reservationId, ReportDto reportDto) {
+    public ReportResponse createReport(Long reservationId, ReportRequest reportRequest) {
         Reservation reservation = reservationRepository.findById(reservationId)
             .orElseThrow(IllegalArgumentException::new);
         Report report = Report.builder().
-            doctorSummary(reportDto.doctorSummary())
-            .frequency(reportDto.frequency())
-            .mealTime(reportDto.mealTime())
-            .timeOfDay(reportDto.timeOfDays())
+            doctorSummary(reportRequest.doctorSummary())
+            .frequency(reportRequest.frequency())
+            .mealTime(reportRequest.mealTime())
+            .timeOfDay(reportRequest.timeOfDays())
             .build();
         reservation.getReports().add(report);
         reservationRepository.save(reservation);
-        return report;
+        return new ReportResponse(report.getDoctorSummary(), report.getFrequency(),
+            report.getMealTime(), report.getTimeOfDay());
     }
 
 }

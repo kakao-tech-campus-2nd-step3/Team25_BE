@@ -1,4 +1,4 @@
-package com.team25.backend.dto;
+package com.team25.backend.dto.response;
 
 public interface OAuth2Response {
     String getProvider();

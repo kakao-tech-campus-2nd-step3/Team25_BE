@@ -71,10 +71,10 @@ public class Reservation {
 
     @Column(name = "cancel_reason")
     @Enumerated(value = EnumType.STRING)
-    private  CancelReason cancelReason; // 취소 사유
+    private CancelReason cancelReason; // 취소 사유
 
     @Column(name = "cancel_detail")
-    private  String cancelDetail; // 취소 세부 사유
+    private String cancelDetail; // 취소 세부 사유
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate; // 생성일

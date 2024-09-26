@@ -1,8 +1,8 @@
 package com.team25.backend.controller;
 
-import com.team25.backend.dto.AccompanyDto;
+import com.team25.backend.dto.request.AccompanyRequest;
+import com.team25.backend.dto.response.AccompanyResponse;
 import com.team25.backend.dto.response.ApiResponse;
-import com.team25.backend.entity.Accompany;
 import com.team25.backend.service.AccompanyService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -25,21 +25,21 @@ public class AccompanyController {
     }
 
     @GetMapping("/{reservation_id}")
-    public ResponseEntity<ApiResponse<List<Accompany>>> getTracking(
+    public ResponseEntity<ApiResponse<List<AccompanyResponse>>> getTracking(
         @PathVariable(name = "reservation_id") Long reservationId) {
-        List<Accompany> trackingAccompanies = accompanyService.getTrackingAccompanies(
+        List<AccompanyResponse> trackingAccompanies = accompanyService.getTrackingAccompanies(
             reservationId);
         return new ResponseEntity<>(
             new ApiResponse<>(true, "성공", trackingAccompanies), HttpStatus.OK);
     }
 
     @PostMapping("/{reservation_id}")
-    public ResponseEntity<ApiResponse<Accompany>> postTracking(
+    public ResponseEntity<ApiResponse<AccompanyResponse>> postTracking(
         @PathVariable(name = "reservation_id") Long reservationId,
-        @Valid AccompanyDto accompanyDto) {
+        @Valid AccompanyRequest accompanyRequest) {
         return new ResponseEntity<>(
             new ApiResponse<>(true, "성공",
-                accompanyService.getTrackingAccompany(reservationId, accompanyDto)),
+                accompanyService.getTrackingAccompany(reservationId, accompanyRequest)),
             HttpStatus.CREATED);
     }
 }

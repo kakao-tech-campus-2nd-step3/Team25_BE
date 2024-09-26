@@ -1,7 +1,8 @@
 package com.team25.backend.controller;
 
-import com.team25.backend.dto.ReportDto;
+import com.team25.backend.dto.request.ReportRequest;
 import com.team25.backend.dto.response.ApiResponse;
+import com.team25.backend.dto.response.ReportResponse;
 import com.team25.backend.entity.Report;
 import com.team25.backend.service.ReportService;
 import jakarta.validation.Valid;
@@ -25,7 +26,7 @@ public class ReportController {
     }
 
     @GetMapping("/{reservation_id}")
-    public ResponseEntity<ApiResponse<Report>> getReport(
+    public ResponseEntity<ApiResponse<ReportResponse>> getReport(
         @PathVariable("reservation_id") Long reservationId) {
         return new ResponseEntity<>(
             new ApiResponse<>(true, "리포트 조회를 성공했습니다", reportService.getReport(reservationId)),
@@ -33,10 +34,10 @@ public class ReportController {
     }
 
     @PostMapping("/{reservation_id}")
-    public ResponseEntity<ApiResponse<Report>> createReport(
+    public ResponseEntity<ApiResponse<ReportResponse>> createReport(
         @PathVariable("reservation_id") Long reservationId,
-        @Valid @RequestBody ReportDto reportDto) {
+        @Valid @RequestBody ReportRequest reportRequest) {
         return new ResponseEntity<>(new ApiResponse<>(true, "리포트 생성이 완료되었습니다",
-            reportService.createReport(reservationId, reportDto)), HttpStatus.CREATED);
+            reportService.createReport(reservationId, reportRequest)), HttpStatus.CREATED);
     }
 }

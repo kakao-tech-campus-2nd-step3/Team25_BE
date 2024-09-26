@@ -116,15 +116,19 @@ public class ManagerService {
     }
 
     private void validateWorkingHourRequest(ManagerWorkingHourRequest request) {
-        if (!request.getStartTime().matches("\\d{2}:\\d{2}")) {
+        validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
+    }
+
+    private void validateWorkingHour(String startTime, String endTime, String day) {
+        if (!startTime.matches("\\d{2}:\\d{2}")) {
             throw new ManagerException(ManagerErrorCode.INVALID_WORKING_HOUR_FORMAT);
         }
-        if (!request.getEndTime().matches("\\d{2}:\\d{2}")) {
+        if (!endTime.matches("\\d{2}:\\d{2}")) {
             throw new ManagerException(ManagerErrorCode.INVALID_WORKING_HOUR_FORMAT);
         }
 
         try {
-            Day.fromKoreanName(request.getDay());
+            Day.fromKoreanName(day);
         } catch (IllegalArgumentException e) {
             throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
         }
@@ -182,5 +186,31 @@ public class ManagerService {
         if (workingRegion == null || workingRegion.isEmpty()) {
             throw new ManagerException(ManagerErrorCode.INVALID_WORKING_REGION);
         }
+    }
+
+    public ManagerWorkingHourUpdateResponse updateWorkingHour(Long managerId, Long workingHoursId, ManagerWorkingHourUpdateRequest request) {
+        Manager manager = managerRepository.findById(managerId)
+            .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
+
+        WorkingHour workingHour = workingHourRepository.findById(workingHoursId)
+            .orElseThrow(() -> new ManagerException(ManagerErrorCode.WORKING_HOUR_NOT_FOUND));
+
+        if (!workingHour.getManager().getManagerId().equals(managerId)) {
+            throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        validateWorkingHourRequest(request);
+
+        workingHour.setDay(Day.fromKoreanName(request.getDay()));
+        workingHour.setStartTime(request.getStartTime());
+        workingHour.setEndTime(request.getEndTime());
+        workingHourRepository.save(workingHour);
+
+        return ManagerWorkingHourUpdateResponse.fromEntity(workingHour);
+    }
+
+
+    private void validateWorkingHourRequest(ManagerWorkingHourUpdateRequest request) {
+        validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
     }
 }

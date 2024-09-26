@@ -1,6 +1,7 @@
 package com.team25.backend.service;
 
 import com.team25.backend.dto.request.BillingKeyRequest;
+import com.team25.backend.dto.request.PaymentCancelRequest;
 import com.team25.backend.dto.request.PaymentRequest;
 import com.team25.backend.dto.request.ExpireBillingKeyRequest;
 import com.team25.backend.dto.response.BillingKeyResponse;
@@ -123,6 +124,35 @@ public class PaymentService {
         body.put("signData", signData);
 
         String url = "https://sandbox-api.nicepay.co.kr/v1/subscribe/" + bid + "/payments";
+
+        // 요청 및 응답 처리
+        PaymentResponse responseDto;
+        try {
+            responseDto = restClient.post()
+                    .uri(url)
+                    .headers(httpHeaders -> httpHeaders.addAll(headers))
+                    .body(body)
+                    .retrieve()
+                    .body(PaymentResponse.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to process payment", e);
+        }
+
+        return responseDto;
+    }
+
+    // 결제 취소
+    public PaymentResponse requestCancel(PaymentCancelRequest requestDto) throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthorizationHeader());
+
+        // 요청 바디 생성
+        Map<String, Object> body = new HashMap<>();
+        body.put("reason", requestDto.reason());
+        body.put("orderId", requestDto.orderId());
+
+        String url = "https://sandbox-api.nicepay.co.kr/v1/payments/" + requestDto.tid() + "/cancel";
 
         // 요청 및 응답 처리
         PaymentResponse responseDto;

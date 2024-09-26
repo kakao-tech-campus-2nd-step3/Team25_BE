@@ -2,6 +2,7 @@ package com.team25.backend.controller;
 
 import com.team25.backend.dto.CustomUserDetails;
 import com.team25.backend.dto.request.BillingKeyRequest;
+import com.team25.backend.dto.request.PaymentCancelRequest;
 import com.team25.backend.dto.request.PaymentRequest;
 import com.team25.backend.dto.request.ExpireBillingKeyRequest;
 import com.team25.backend.dto.response.ApiResponse;
@@ -40,6 +41,15 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<PaymentResponse>> payment(@RequestBody PaymentRequest requestDto) throws Exception {
         String userId = getCurrentUserId();
         PaymentResponse responseDto = paymentService.requestPayment(userId, requestDto);
+        return new ResponseEntity<>(
+                new ApiResponse<>(true, responseDto.resultMsg(), responseDto), HttpStatus.OK
+        );
+    }
+
+    // 결제 취소
+    @PostMapping("/cancel")
+    public ResponseEntity<ApiResponse<PaymentResponse>> cancel(@RequestBody PaymentCancelRequest requestDto) throws Exception {
+        PaymentResponse responseDto = paymentService.requestCancel(requestDto);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, responseDto.resultMsg(), responseDto), HttpStatus.OK
         );

@@ -201,9 +201,9 @@ public class ManagerService {
 
         validateWorkingHourRequest(request);
 
-        workingHour.setDay(Day.fromKoreanName(request.getDay()));
-        workingHour.setStartTime(request.getStartTime());
-        workingHour.setEndTime(request.getEndTime());
+        workingHour.setDay(Day.fromKoreanName(request.day()));
+        workingHour.setStartTime(request.startTime());
+        workingHour.setEndTime(request.endTime());
         workingHourRepository.save(workingHour);
 
         return ManagerWorkingHourUpdateResponse.fromEntity(workingHour);
@@ -211,7 +211,7 @@ public class ManagerService {
 
 
     private void validateWorkingHourRequest(ManagerWorkingHourUpdateRequest request) {
-        validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
+        validateWorkingHour(request.startTime(), request.endTime(), request.day());
     }
 
     public ManagerWorkingHourDeleteResponse deleteWorkingHour(Long managerId, Long workingHoursId) {

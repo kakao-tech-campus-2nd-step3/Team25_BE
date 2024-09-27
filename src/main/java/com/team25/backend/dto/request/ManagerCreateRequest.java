@@ -1,7 +1,5 @@
 package com.team25.backend.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-
 public record ManagerCreateRequest(
     String name,
     String profileImage,

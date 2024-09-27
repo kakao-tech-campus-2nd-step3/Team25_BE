@@ -40,5 +40,5 @@ public class User {
     private String role;
 
     @Column(name = "uuid")
-    private UUID uuid;
+    private String uuid;
 }

@@ -2,6 +2,7 @@ package com.team25.backend.service;
 
 import com.team25.backend.dto.CustomUserDetails;
 import com.team25.backend.entity.User;
+import com.team25.backend.exception.UserNotFoundException;
 import com.team25.backend.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,15 +20,19 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 회원이 존재하지 않으면, 가입 시킴
+        if (userRepository.existsByUsername(username)) {
+            User userData = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
+            return new CustomUserDetails(userData);
+        } else{
+            User data = new User();
 
-        //DB에서 조회
-        User userData = userRepository.findByUsername(username)
-                .orElseThrow();
+            data.setUsername(username);
+            data.setRole("ROLE_USER");
 
-        // 오류 처리 구현
-        if (userData == null) {
-            throw new UsernameNotFoundException("User not found");
+            userRepository.save(data);
+            return new CustomUserDetails(data);
         }
-        return new CustomUserDetails(userData);
     }
 }

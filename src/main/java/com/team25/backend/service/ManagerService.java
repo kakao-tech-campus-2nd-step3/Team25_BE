@@ -174,9 +174,9 @@ public class ManagerService {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
-        validateWorkingRegion(request.getWorkingRegion());
+        validateWorkingRegion(request.workingRegion());
 
-        manager.setWorkingRegion(request.getWorkingRegion());
+        manager.setWorkingRegion(request.workingRegion());
         managerRepository.save(manager);
 
         return ManagerLocationUpdateResponse.fromEntity(manager);

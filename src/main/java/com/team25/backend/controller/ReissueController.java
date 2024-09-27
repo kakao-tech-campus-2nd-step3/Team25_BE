@@ -55,11 +55,10 @@ public class ReissueController {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
-        String username = jwtUtil.getUsername(refresh);
-        String role = jwtUtil.getRole(refresh);
+        String uuid = jwtUtil.getUuid(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
+        String newAccess = jwtUtil.createJwt("access", uuid, 600000L);
 
         //response
         response.setHeader("access", newAccess);

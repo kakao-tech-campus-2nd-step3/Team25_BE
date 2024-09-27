@@ -1,10 +1,11 @@
 package com.team25.backend.controller;
 
+import com.team25.backend.annotation.LoginUser;
 import com.team25.backend.dto.request.AccompanyRequest;
 import com.team25.backend.dto.response.AccompanyResponse;
 import com.team25.backend.dto.response.ApiResponse;
+import com.team25.backend.entity.User;
 import com.team25.backend.service.AccompanyService;
-import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class AccompanyController {
 
     @GetMapping("/{reservation_id}")
     public ResponseEntity<ApiResponse<List<AccompanyResponse>>> getTracking(
+        @LoginUser User user,
         @PathVariable(name = "reservation_id") Long reservationId) {
         List<AccompanyResponse> trackingAccompanies = accompanyService.getTrackingAccompanies(
             reservationId);
@@ -35,11 +37,12 @@ public class AccompanyController {
 
     @PostMapping("/{reservation_id}")
     public ResponseEntity<ApiResponse<AccompanyResponse>> postTracking(
+        @LoginUser User user,
         @PathVariable(name = "reservation_id") Long reservationId,
-        @Valid AccompanyRequest accompanyRequest) {
+        AccompanyRequest accompanyRequest) {
         return new ResponseEntity<>(
             new ApiResponse<>(true, "성공",
-                accompanyService.getTrackingAccompany(reservationId, accompanyRequest)),
+                accompanyService.addTrackingAccompany(reservationId, accompanyRequest)),
             HttpStatus.CREATED);
     }
 }

@@ -104,9 +104,9 @@ public class ManagerService {
         validateWorkingHourRequest(request);
 
         WorkingHour workingHour = WorkingHour.builder()
-            .day(Day.fromKoreanName(request.getDay()))
-            .startTime(request.getStartTime())
-            .endTime(request.getEndTime())
+            .day(Day.fromKoreanName(request.day()))
+            .startTime(request.startTime())
+            .endTime(request.endTime())
             .manager(manager)
             .build();
 
@@ -116,7 +116,7 @@ public class ManagerService {
     }
 
     private void validateWorkingHourRequest(ManagerWorkingHourCreateRequest request) {
-        validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
+        validateWorkingHour(request.startTime(), request.endTime(), request.day());
     }
 
     private void validateWorkingHour(String startTime, String endTime, String day) {

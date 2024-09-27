@@ -45,9 +45,6 @@ public class Reservation {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    // private Long UserId;
-
-    // private Long ManagerId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id", nullable = false)
     private Manager manager;

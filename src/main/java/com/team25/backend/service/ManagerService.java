@@ -81,7 +81,7 @@ public class ManagerService {
 
         certificateRepository.save(certificate);
 
-        return ManagerCreateResponse.builder().build();
+        return new ManagerCreateResponse();
     }
 
     private void validateCreateRequest(ManagerCreateRequest request) {
@@ -112,7 +112,7 @@ public class ManagerService {
 
         workingHourRepository.save(workingHour);
 
-        return ManagerWorkingHourCreateResponse.builder().build();
+        return new ManagerWorkingHourCreateResponse();
     }
 
     private void validateWorkingHourRequest(ManagerWorkingHourCreateRequest request) {
@@ -227,6 +227,6 @@ public class ManagerService {
 
         workingHourRepository.delete(workingHour);
 
-        return ManagerWorkingHourDeleteResponse.builder().build();
+        return new ManagerWorkingHourDeleteResponse();
     }
 }

@@ -156,9 +156,9 @@ public class ManagerService {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
-        validateComment(request.getComment());
+        validateComment(request.comment());
 
-        manager.setComment(request.getComment());
+        manager.setComment(request.comment());
         managerRepository.save(manager);
 
         return ManagerCommentUpdateResponse.fromEntity(manager);

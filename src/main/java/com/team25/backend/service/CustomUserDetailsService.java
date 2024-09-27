@@ -20,19 +20,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 회원이 존재하지 않으면, 가입 시킴
-        if (userRepository.existsByUsername(username)) {
-            User userData = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
-            return new CustomUserDetails(userData);
-        } else{
-            User data = new User();
-
-            data.setUsername(username);
-            data.setRole("ROLE_USER");
-
-            userRepository.save(data);
-            return new CustomUserDetails(data);
-        }
+        return userRepository.findByUsername(username)
+                .map(CustomUserDetails::new)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setUsername(username);
+                    newUser.setRole("ROLE_USER");
+                    userRepository.save(newUser);
+                    return new CustomUserDetails(newUser);
+                });
     }
 }

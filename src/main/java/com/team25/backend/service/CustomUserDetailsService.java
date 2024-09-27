@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -24,7 +26,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(CustomUserDetails::new)
                 .orElseGet(() -> {
                     User newUser = new User();
+                    UUID userUUID = UUID.randomUUID();
                     newUser.setUsername(username);
+                    newUser.setUuid(userUUID);
                     newUser.setRole("ROLE_USER");
                     userRepository.save(newUser);
                     return new CustomUserDetails(newUser);

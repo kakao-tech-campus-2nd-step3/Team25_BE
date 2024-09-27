@@ -4,6 +4,7 @@ import com.team25.backend.dto.request.AccompanyRequest;
 import com.team25.backend.dto.response.AccompanyResponse;
 import com.team25.backend.entity.Accompany;
 import com.team25.backend.entity.Reservation;
+import com.team25.backend.enumdomain.AccompanyStatus;
 import com.team25.backend.repository.AccompanyRepository;
 import com.team25.backend.repository.ReservationRepository;
 import java.util.ArrayList;
@@ -38,9 +39,11 @@ public class AccompanyService {
     }
 
     // 실시간 동행 정보 생성
-    public AccompanyResponse getTrackingAccompany(Long reservationId,
+    public AccompanyResponse addTrackingAccompany(Long reservationId,
         AccompanyRequest accompanyRequest) {
-        Accompany track = Accompany.builder().accompanyStatus(accompanyRequest.accompanyStatus())
+        AccompanyStatus accompanyStatus = AccompanyStatus.valueOf(
+            accompanyRequest.accompanyStatus());
+        Accompany track = Accompany.builder().accompanyStatus(accompanyStatus)
             .time(accompanyRequest.time()).latitude(accompanyRequest.latitude())
             .longitude(accompanyRequest.longitude()).longitude(accompanyRequest.longitude())
             .detail(accompanyRequest.detail()).build();
@@ -50,7 +53,7 @@ public class AccompanyService {
         reservationRepository.save(reservation);
         accompanyRepository.save(track);
         return new AccompanyResponse(
-            accompanyRequest.accompanyStatus(),
+            accompanyStatus,
             accompanyRequest.latitude(), accompanyRequest.longitude(), accompanyRequest.time(),
             accompanyRequest.detail());
     }

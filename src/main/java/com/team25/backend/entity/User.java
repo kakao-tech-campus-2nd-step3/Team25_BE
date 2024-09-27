@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -26,7 +28,6 @@ import lombok.experimental.SuperBuilder;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -37,4 +38,7 @@ public class User {
 
     @Column(name = "role")
     private String role;
+
+    @Column(name = "uuid")
+    private UUID uuid;
 }

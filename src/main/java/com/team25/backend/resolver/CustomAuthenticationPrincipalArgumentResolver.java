@@ -3,6 +3,7 @@ package com.team25.backend.resolver;
 import com.team25.backend.annotation.LoginUser;
 import com.team25.backend.dto.CustomUserDetails;
 import com.team25.backend.entity.User;
+import com.team25.backend.exception.UserNotFoundException;
 import com.team25.backend.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import static com.team25.backend.exception.errorMessage.Messages.NOT_FOUND_USER;
 
 @Component
 @AllArgsConstructor
@@ -39,18 +42,18 @@ public class CustomAuthenticationPrincipalArgumentResolver implements HandlerMet
 
         User user = getUserFromAuthentication(authentication);
 
-        log.info("user name = {}",user.getUsername());
+        log.info("user UUID = {}",user.getUuid());
 
         return user;
     }
 
     private User getUserFromAuthentication(Authentication authentication) {
-        // jwt token 추출
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String username = userDetails.getUsername();
 
-        return userRepository.findByUsername(username).orElseThrow();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(NOT_FOUND_USER));
     }
 
     private boolean isAuthenticationUser(Authentication authentication) {

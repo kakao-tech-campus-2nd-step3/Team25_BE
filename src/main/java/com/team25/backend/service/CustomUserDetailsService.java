@@ -2,11 +2,14 @@ package com.team25.backend.service;
 
 import com.team25.backend.dto.CustomUserDetails;
 import com.team25.backend.entity.User;
+import com.team25.backend.exception.UserNotFoundException;
 import com.team25.backend.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -19,15 +22,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        //DB에서 조회
-        User userData = userRepository.findByUsername(username)
-                .orElseThrow();
-
-        // 오류 처리 구현
-        if (userData == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return new CustomUserDetails(userData);
+        return userRepository.findByUsername(username)
+                .map(CustomUserDetails::new)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    String userUUID = UUID.randomUUID().toString();
+                    newUser.setUsername(username);
+                    newUser.setUuid(userUUID);
+                    newUser.setRole("ROLE_USER");
+                    userRepository.save(newUser);
+                    return new CustomUserDetails(newUser);
+                });
     }
 }

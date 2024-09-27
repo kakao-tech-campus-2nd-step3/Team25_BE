@@ -44,6 +44,4 @@ public class ReportController {
         return new ResponseEntity<>(new ApiResponse<>(true, "리포트 생성이 완료되었습니다",
             reportService.createReport(reservationId, reportRequest)), HttpStatus.CREATED);
     }
-    // 보호자도 신청 가능: 카톡으로 진행 상황을 보여주고 있다 => 보호자로 등록한 사람한테도알림이 필요. 중간 단계마다 알림
-    // 기획서가 다 보여주지 않음 =>
 }

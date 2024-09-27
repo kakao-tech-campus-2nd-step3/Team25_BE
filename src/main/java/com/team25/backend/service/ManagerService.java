@@ -66,26 +66,26 @@ public class ManagerService {
         validateCreateRequest(request);
 
         Manager manager = Manager.builder()
-            .managerName(request.getName())
-            .profileImage(request.getProfileImage())
-            .career(request.getCareer())
-            .comment(request.getComment())
+            .managerName(request.name())
+            .profileImage(request.profileImage())
+            .career(request.career())
+            .comment(request.comment())
             .build();
 
         managerRepository.save(manager);
 
         Certificate certificate = Certificate.builder()
-            .certificateImage(request.getCertificateImage())
+            .certificateImage(request.certificateImage())
             .manager(manager)
             .build();
 
         certificateRepository.save(certificate);
 
-        return ManagerCreateResponse.builder().build();
+        return new ManagerCreateResponse();
     }
 
     private void validateCreateRequest(ManagerCreateRequest request) {
-        if (request.getName().isEmpty()) {
+        if (request.name().isEmpty()) {
             throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
         }
     }
@@ -104,19 +104,19 @@ public class ManagerService {
         validateWorkingHourRequest(request);
 
         WorkingHour workingHour = WorkingHour.builder()
-            .day(Day.fromKoreanName(request.getDay()))
-            .startTime(request.getStartTime())
-            .endTime(request.getEndTime())
+            .day(Day.fromKoreanName(request.day()))
+            .startTime(request.startTime())
+            .endTime(request.endTime())
             .manager(manager)
             .build();
 
         workingHourRepository.save(workingHour);
 
-        return ManagerWorkingHourCreateResponse.builder().build();
+        return new ManagerWorkingHourCreateResponse();
     }
 
     private void validateWorkingHourRequest(ManagerWorkingHourCreateRequest request) {
-        validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
+        validateWorkingHour(request.startTime(), request.endTime(), request.day());
     }
 
     private void validateWorkingHour(String startTime, String endTime, String day) {
@@ -138,9 +138,9 @@ public class ManagerService {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
-        validateProfileImage(request.getProfileImage());
+        validateProfileImage(request.profileImage());
 
-        manager.setProfileImage(request.getProfileImage());
+        manager.setProfileImage(request.profileImage());
         managerRepository.save(manager);
 
         return ManagerProfileImageUpdateResponse.fromEntity(manager);
@@ -156,9 +156,9 @@ public class ManagerService {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
-        validateComment(request.getComment());
+        validateComment(request.comment());
 
-        manager.setComment(request.getComment());
+        manager.setComment(request.comment());
         managerRepository.save(manager);
 
         return ManagerCommentUpdateResponse.fromEntity(manager);
@@ -174,9 +174,9 @@ public class ManagerService {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
-        validateWorkingRegion(request.getWorkingRegion());
+        validateWorkingRegion(request.workingRegion());
 
-        manager.setWorkingRegion(request.getWorkingRegion());
+        manager.setWorkingRegion(request.workingRegion());
         managerRepository.save(manager);
 
         return ManagerLocationUpdateResponse.fromEntity(manager);
@@ -201,9 +201,9 @@ public class ManagerService {
 
         validateWorkingHourRequest(request);
 
-        workingHour.setDay(Day.fromKoreanName(request.getDay()));
-        workingHour.setStartTime(request.getStartTime());
-        workingHour.setEndTime(request.getEndTime());
+        workingHour.setDay(Day.fromKoreanName(request.day()));
+        workingHour.setStartTime(request.startTime());
+        workingHour.setEndTime(request.endTime());
         workingHourRepository.save(workingHour);
 
         return ManagerWorkingHourUpdateResponse.fromEntity(workingHour);
@@ -211,7 +211,7 @@ public class ManagerService {
 
 
     private void validateWorkingHourRequest(ManagerWorkingHourUpdateRequest request) {
-        validateWorkingHour(request.getStartTime(), request.getEndTime(), request.getDay());
+        validateWorkingHour(request.startTime(), request.endTime(), request.day());
     }
 
     public ManagerWorkingHourDeleteResponse deleteWorkingHour(Long managerId, Long workingHoursId) {
@@ -227,6 +227,6 @@ public class ManagerService {
 
         workingHourRepository.delete(workingHour);
 
-        return ManagerWorkingHourDeleteResponse.builder().build();
+        return new ManagerWorkingHourDeleteResponse();
     }
 }

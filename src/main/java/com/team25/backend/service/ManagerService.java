@@ -66,16 +66,16 @@ public class ManagerService {
         validateCreateRequest(request);
 
         Manager manager = Manager.builder()
-            .managerName(request.getName())
-            .profileImage(request.getProfileImage())
-            .career(request.getCareer())
-            .comment(request.getComment())
+            .managerName(request.name())
+            .profileImage(request.profileImage())
+            .career(request.career())
+            .comment(request.comment())
             .build();
 
         managerRepository.save(manager);
 
         Certificate certificate = Certificate.builder()
-            .certificateImage(request.getCertificateImage())
+            .certificateImage(request.certificateImage())
             .manager(manager)
             .build();
 
@@ -85,7 +85,7 @@ public class ManagerService {
     }
 
     private void validateCreateRequest(ManagerCreateRequest request) {
-        if (request.getName().isEmpty()) {
+        if (request.name().isEmpty()) {
             throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
         }
     }

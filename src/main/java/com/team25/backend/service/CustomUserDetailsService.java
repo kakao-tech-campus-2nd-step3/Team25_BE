@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(CustomUserDetails::new)
                 .orElseGet(() -> {
                     User newUser = new User();
-                    UUID userUUID = UUID.randomUUID();
+                    String userUUID = UUID.randomUUID().toString();
                     newUser.setUsername(username);
                     newUser.setUuid(userUUID);
                     newUser.setRole("ROLE_USER");

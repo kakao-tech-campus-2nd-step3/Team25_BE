@@ -14,7 +14,7 @@ public class ManagerByDateAndRegionResponse {
 
     public static ManagerByDateAndRegionResponse fromEntity(Manager manager) {
         return ManagerByDateAndRegionResponse.builder()
-            .managerId(manager.getManagerId())
+            .managerId(manager.getId())
             .name(manager.getManagerName())
             .profileImage(manager.getProfileImage())
             .career(manager.getCareer())

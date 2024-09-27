@@ -138,9 +138,9 @@ public class ManagerService {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
-        validateProfileImage(request.getProfileImage());
+        validateProfileImage(request.profileImage());
 
-        manager.setProfileImage(request.getProfileImage());
+        manager.setProfileImage(request.profileImage());
         managerRepository.save(manager);
 
         return ManagerProfileImageUpdateResponse.fromEntity(manager);

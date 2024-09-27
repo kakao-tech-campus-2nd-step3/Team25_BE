@@ -195,7 +195,7 @@ public class ManagerService {
         WorkingHour workingHour = workingHourRepository.findById(workingHoursId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.WORKING_HOUR_NOT_FOUND));
 
-        if (!workingHour.getManager().getManagerId().equals(managerId)) {
+        if (!workingHour.getManager().getId().equals(managerId)) {
             throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
         }
 
@@ -221,7 +221,7 @@ public class ManagerService {
         WorkingHour workingHour = workingHourRepository.findById(workingHoursId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.WORKING_HOUR_NOT_FOUND));
 
-        if (!workingHour.getManager().getManagerId().equals(managerId)) {
+        if (!workingHour.getManager().getId().equals(managerId)) {
             throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
         }
 

@@ -42,13 +42,12 @@ public class CustomAuthenticationPrincipalArgumentResolver implements HandlerMet
 
         User user = getUserFromAuthentication(authentication);
 
-        log.info("user name = {}",user.getUsername());
+        log.info("user UUID = {}",user.getUuid());
 
         return user;
     }
 
     private User getUserFromAuthentication(Authentication authentication) {
-        // jwt token 추출
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String username = userDetails.getUsername();

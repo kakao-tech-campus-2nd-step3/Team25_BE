@@ -65,7 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/join", "/reissue").permitAll()
                         .requestMatchers("/my").hasRole("USER")
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         // CustomAuthenticationProvider 등록
         http

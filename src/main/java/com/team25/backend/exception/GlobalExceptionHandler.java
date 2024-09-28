@@ -22,4 +22,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ApiResponse<>(false, "유효성 검사 실패", errors),
             HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ManagerException.class)
+    public ResponseEntity<ApiResponse<String>> handleManagerException(ManagerException ex) {
+        return new ResponseEntity<>(
+            ApiResponse.<String>builder()
+                .status(false)
+                .message(ex.getErrorCode().getMessage())
+                .data(null)
+                .build(),
+            ex.getErrorCode().getHttpStatus()
+        );
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleUserNotFoundException(UserNotFoundException ex) {
+        ApiResponse<String>apiResponse = new ApiResponse<>(false, ex.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
+    }
 }

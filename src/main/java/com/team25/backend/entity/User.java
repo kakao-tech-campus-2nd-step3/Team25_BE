@@ -15,17 +15,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -34,17 +35,9 @@ public class User {
     @Column(name = "username", length = 100, nullable = false)
     private String username;
 
-    @Column(name = "email", length = 100, nullable = false)
-    private String email;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Role role;
+    private String role;
 
-    // 공통 속성 및 메서드
-
-    // 역할(Role)을 위한 Enum
-    public enum Role {
-        ROLE_USER, ROLE_MANAGER
-    }
+    @Column(name = "uuid")
+    private String uuid;
 }

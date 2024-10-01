@@ -42,7 +42,10 @@ public class Patient {
     private LocalDateTime birthDate;
 
     @Column(name = "nok_phone", nullable = false)
-    private String NokPhone;
+    private String nokPhone;
+
+    @Column(name = "patient_relation", nullable = false)
+    private String patientRelation;
 
     @OneToOne(mappedBy = "patient")
     private Reservation reservation;

@@ -28,7 +28,4 @@ public class Manager extends User {
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkingHour> workingHours = new ArrayList<>();
-
-    @OneToMany(mappedBy = "manager") // Reservation 관련은 삭제되면 안됨
-    private List<Reservation> reservations = new ArrayList<>();
 }

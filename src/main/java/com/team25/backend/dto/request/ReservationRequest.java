@@ -21,6 +21,10 @@ public record ReservationRequest(
     String reservationDateTime,
     @ValidServiceType ServiceType serviceType,
     @ValidTransportation Transportation transportation,
-    @Min(value = 0, message = "가격은 0 이상 입니다.") @ValidPrice String price) {
+    @Min(value = 0, message = "가격은 0 이상 입니다.") @ValidPrice String price,
+    PatientRequest patientRequest,
+    Long managerId,
+    Long userId
+) {
 
 }

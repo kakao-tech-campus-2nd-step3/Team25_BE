@@ -2,49 +2,42 @@ package com.team25.backend.dto.response;
 
 import com.team25.backend.entity.Manager;
 import com.team25.backend.entity.WorkingHour;
-import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Getter
-@Builder
-@AllArgsConstructor
-public class ManagerProfileResponse {
-    private String name;
-    private String profileImage;
-    private String career;
-    private String comment;
-    private String workingRegion;
-    private List<WorkingHourResponse> workingHour;
-
+public record ManagerProfileResponse(
+    String name,
+    String profileImage,
+    String career,
+    String comment,
+    String workingRegion,
+    List<WorkingHourResponse> workingHour
+) {
     public static ManagerProfileResponse fromEntity(Manager manager) {
-        return ManagerProfileResponse.builder()
-            .name(manager.getManagerName())
-            .profileImage(manager.getProfileImage())
-            .career(manager.getCareer())
-            .comment(manager.getComment())
-            .workingRegion(manager.getWorkingRegion())
-            .workingHour(manager.getWorkingHours().stream()
+        return new ManagerProfileResponse(
+            manager.getManagerName(),
+            manager.getProfileImage(),
+            manager.getCareer(),
+            manager.getComment(),
+            manager.getWorkingRegion(),
+            manager.getWorkingHours().stream()
                 .map(WorkingHourResponse::fromEntity)
-                .collect(Collectors.toList()))
-            .build();
+                .collect(Collectors.toList())
+        );
     }
 
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    public static class WorkingHourResponse {
-        private String day;
-        private String startTime;
-        private String endTime;
-
+    public record WorkingHourResponse(
+        String day,
+        String startTime,
+        String endTime
+    ) {
         public static WorkingHourResponse fromEntity(WorkingHour workingHour) {
-            return WorkingHourResponse.builder()
-                .day(workingHour.getDay().getKrName())
-                .startTime(workingHour.getStartTime())
-                .endTime(workingHour.getEndTime())
-                .build();
+            return new WorkingHourResponse(
+                workingHour.getDay().getKrName(),
+                workingHour.getStartTime(),
+                workingHour.getEndTime()
+            );
         }
     }
 }

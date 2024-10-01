@@ -2,6 +2,8 @@ package com.team25.backend.jwt;
 
 import com.team25.backend.dto.CustomUserDetails;
 import com.team25.backend.entity.User;
+import com.team25.backend.exception.UserNotFoundException;
+import com.team25.backend.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,14 +18,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static com.team25.backend.exception.errorMessage.Messages.NOT_FOUND_USER;
+
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public JWTFilter(JWTUtil jwtUtil) {
-
+    public JWTFilter(JWTUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -43,12 +48,9 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
-
-            //response body
             PrintWriter writer = response.getWriter();
             writer.print("access token expired");
 
-            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -57,19 +59,22 @@ public class JWTFilter extends OncePerRequestFilter {
         String category = jwtUtil.getCategory(accessToken);
 
         if (!category.equals("access")) {
-            //response body
             PrintWriter writer = response.getWriter();
             writer.print("invalid access token");
 
-            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         // username, role 값을 획득
-        String username = jwtUtil.getUsername(accessToken);
-        String role = jwtUtil.getRole(accessToken);
+        String uuid = jwtUtil.getUuid(accessToken);
+        User foundUser = userRepository.findByUuid(uuid)
+                .orElseThrow(()-> new UserNotFoundException(NOT_FOUND_USER));
 
+        String username = foundUser.getUsername();
+        String role = foundUser.getRole();
+        
+        // 권한 세션에 레포에서 id 조회를 통해 role 부여
         User user = new User();
         user.setUsername(username);
         user.setRole(role);

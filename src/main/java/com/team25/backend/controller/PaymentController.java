@@ -29,8 +29,8 @@ public class PaymentController {
     // 빌링키 발급
     @PostMapping("/billing-key")
     public ResponseEntity<ApiResponse<BillingKeyResponse>> createBillingKey(@RequestBody BillingKeyRequest requestDto) throws Exception {
-        String userId = getCurrentUserId(); // 현재 사용자 식별자 가져오기
-        BillingKeyResponse responseDto = paymentService.createBillingKey(requestDto, userId);
+        String userUuid = getCurrentUserUuid(); // 현재 사용자 식별자 가져오기
+        BillingKeyResponse responseDto = paymentService.createBillingKey(requestDto, userUuid);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, "빌링키 발급을 성공했습니다.", responseDto), HttpStatus.OK
         );
@@ -39,8 +39,8 @@ public class PaymentController {
     // 결제 요청
     @PostMapping("/payment")
     public ResponseEntity<ApiResponse<PaymentResponse>> payment(@RequestBody PaymentRequest requestDto) throws Exception {
-        String userId = getCurrentUserId();
-        PaymentResponse responseDto = paymentService.requestPayment(userId, requestDto);
+        String userUuid = getCurrentUserUuid();
+        PaymentResponse responseDto = paymentService.requestPayment(userUuid, requestDto);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, responseDto.resultMsg(), responseDto), HttpStatus.OK
         );
@@ -58,8 +58,8 @@ public class PaymentController {
     // 빌링키 삭제
     @PostMapping("/billing-key/expire")
     public ResponseEntity<ApiResponse<ExpireBillingKeyResponse>> expireBillingKey(@RequestBody ExpireBillingKeyRequest requestDto) throws Exception {
-        String userId = getCurrentUserId();
-        ExpireBillingKeyResponse responseDto = paymentService.expireBillingKey(userId, requestDto);
+        String userUuid = getCurrentUserUuid();
+        ExpireBillingKeyResponse responseDto = paymentService.expireBillingKey(userUuid, requestDto);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, responseDto.resultMsg(), responseDto), HttpStatus.OK
         );
@@ -68,14 +68,14 @@ public class PaymentController {
     // 빌링키 존재 유무 확인
     @GetMapping("/billing-key/exists")
     public ResponseEntity<ApiResponse<Boolean>> billingKeyExists() {
-        String userId = getCurrentUserId();
-        boolean exists = paymentService.billingKeyExists(userId);
+        String userUuid = getCurrentUserUuid();
+        boolean exists = paymentService.billingKeyExists(userUuid);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, "성공적으로 빌링키 존재 유무를 가져왔습니다.", exists), HttpStatus.OK
         );
     }
 
-    private String getCurrentUserId() {
+    private String getCurrentUserUuid() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -85,7 +85,7 @@ public class PaymentController {
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof CustomUserDetails customUser) {
-            return customUser.getUsername(); // UUID로 수정 필요
+            return customUser.getUuid();
         } else {
             throw new RuntimeException("인증 정보가 CustomUserDetails 타입이 아닙니다.");
         }

@@ -47,12 +47,12 @@ public class PaymentService {
     }
 
     // 빌링키 존재 여부 확인
-    public boolean billingKeyExists(String userId) {
-        return billingKeyRepository.findByUserId(userId).isPresent();
+    public boolean billingKeyExists(String userUuid) {
+        return billingKeyRepository.findByUserUuid(userUuid).isPresent();
     }
 
     // 빌링키 발급
-    public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userId) throws Exception {
+    public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userUuid) throws Exception {
         String encData = requestDto.encData();
         String orderId = generateOrderId();
 
@@ -90,7 +90,7 @@ public class PaymentService {
             billingKey.setBid(responseDto.bid());
             billingKey.setCardCode(responseDto.cardCode());
             billingKey.setCardName(responseDto.cardName());
-            billingKey.setUserId(userId);
+            billingKey.setUserUuid(userUuid);
             billingKey.setOrderId(orderId);
             billingKeyRepository.save(billingKey);
         }
@@ -99,8 +99,8 @@ public class PaymentService {
     }
 
     // 결제 요청
-    public PaymentResponse requestPayment(String userId, PaymentRequest requestDto) throws Exception {
-        BillingKey billingKey = billingKeyRepository.findByUserId(userId)
+    public PaymentResponse requestPayment(String userUuid, PaymentRequest requestDto) throws Exception {
+        BillingKey billingKey = billingKeyRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new RuntimeException("Billing key not found"));
 
         String bid = billingKey.getBid();
@@ -171,8 +171,8 @@ public class PaymentService {
     }
 
     // 빌링키 삭제
-    public ExpireBillingKeyResponse expireBillingKey(String userId, ExpireBillingKeyRequest requestDto) throws Exception {
-        BillingKey billingKey = billingKeyRepository.findByUserId(userId)
+    public ExpireBillingKeyResponse expireBillingKey(String userUuid, ExpireBillingKeyRequest requestDto) throws Exception {
+        BillingKey billingKey = billingKeyRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new RuntimeException("Billing key not found"));
 
         String bid = billingKey.getBid();

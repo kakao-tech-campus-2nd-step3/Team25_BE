@@ -3,6 +3,7 @@ package com.team25.backend.config;
 import com.team25.backend.jwt.JWTFilter;
 import com.team25.backend.jwt.JWTUtil;
 import com.team25.backend.jwt.LoginFilter;
+import com.team25.backend.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,12 +24,14 @@ public class SecurityConfig {
     private final CustomAuthenticationProvider customAuthenticationProvider;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 
 
-    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
+    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, UserRepository userRepository) {
         this.customAuthenticationProvider = customAuthenticationProvider;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -62,7 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/join", "/reissue").permitAll()
                         .requestMatchers("/my").hasRole("USER")
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         // CustomAuthenticationProvider 등록
         http
@@ -70,7 +73,7 @@ public class SecurityConfig {
 
         // JWT Filter
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil, userRepository), LoginFilter.class);
 
         // Login Filter
         http

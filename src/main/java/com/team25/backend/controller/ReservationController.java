@@ -1,12 +1,16 @@
 package com.team25.backend.controller;
 
-import com.team25.backend.dto.ApiDto;
-import com.team25.backend.dto.CancelDto;
-import com.team25.backend.dto.ReservationDto;
+import com.team25.backend.annotation.LoginUser;
+import com.team25.backend.dto.request.CancelRequest;
+import com.team25.backend.dto.request.ReservationRequest;
+import com.team25.backend.dto.response.ApiResponse;
+import com.team25.backend.dto.response.ReservationResponse;
 import com.team25.backend.entity.Reservation;
+import com.team25.backend.entity.User;
 import com.team25.backend.service.ReservationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,15 +29,19 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ApiDto<Reservation> create(@Valid @RequestBody ReservationDto reservationDto) {
-        return new ApiDto<>(reservationService.createReservation(reservationDto), "예약이 접수되었습니다",
-            HttpStatus.OK);
+    public ResponseEntity<ApiResponse<ReservationResponse>> create(
+        @LoginUser User user,
+        @Valid @RequestBody ReservationRequest reservationRequest) {
+        return new ResponseEntity<>(new ApiResponse<>(true, "예약이 접수되었습니다",
+            reservationService.createReservation(reservationRequest,user)
+        ), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/cancel/{reservation_id}") // 이미 취소된 것을 다시 또 취소하는 경우 에러 처리 필요
-    public ApiDto<Reservation> cancel(@PathVariable Long reservation_id,
-        @Valid @RequestBody CancelDto cancelDto) {
-        return new ApiDto<>(reservationService.cancelReservation(reservation_id, cancelDto),
-            "예약 취소가 접수되었습니다.", HttpStatus.OK);
+    @PatchMapping("/cancel") // 이미 취소된 것을 다시 또 취소하는 경우 에러 처리 필요
+    public ResponseEntity<ApiResponse<ReservationResponse>> cancel(
+        @LoginUser User user,
+        @Valid @RequestBody CancelRequest cancelRequest) {
+        return new ResponseEntity<>(new ApiResponse<>(true, "예약 취수가 접수되었습니다",
+            reservationService.cancelReservation(user, cancelRequest)), HttpStatus.OK);
     }
 }

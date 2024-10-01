@@ -45,12 +45,13 @@ public class Reservation {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    // private Long UserId;
-
-    // private Long ManagerId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id", nullable = false)
     private Manager manager;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "departure_location", nullable = false) // ERD 컬럼 이름 변경 요망
     private String departureLocation; // 출발지
@@ -94,7 +95,7 @@ public class Reservation {
     private int price; // 비용
 
     @Column(name = "manager_status")
-    private boolean mangerStatus; // 매니저 상태
+    private boolean managerStatus; // 매니저 상태
 
     @OneToMany(mappedBy = "reservation")
     @Exclude

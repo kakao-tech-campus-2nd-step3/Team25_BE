@@ -58,6 +58,9 @@ public class PaymentService {
 
     // 빌링키 발급
     public BillingKeyResponse createBillingKey(String userUuid, BillingKeyRequest requestDto) throws Exception {
+        User user = userRepository.findByUuid(userUuid)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         String encData = requestDto.encData();
         String orderId = generateOrderId();
 
@@ -92,11 +95,12 @@ public class PaymentService {
 
         if ("0000".equals(responseDto.resultCode())) {
             BillingKey billingKey = new BillingKey();
+            billingKey.setUser(user);
             billingKey.setBid(responseDto.bid());
             billingKey.setCardCode(responseDto.cardCode());
             billingKey.setCardName(responseDto.cardName());
-            billingKey.setUserUuid(userUuid);
             billingKey.setOrderId(orderId);
+            billingKey.setCardAlias(requestDto.cardAlias() != null ? requestDto.cardAlias() : responseDto.cardName());
             billingKeyRepository.save(billingKey);
         }
 

@@ -1,13 +1,18 @@
 package com.team25.backend.service;
 
 import com.team25.backend.dto.request.BillingKeyRequest;
+import com.team25.backend.dto.request.PaymentCancelRequest;
 import com.team25.backend.dto.request.PaymentRequest;
 import com.team25.backend.dto.request.ExpireBillingKeyRequest;
 import com.team25.backend.dto.response.BillingKeyResponse;
 import com.team25.backend.dto.response.PaymentResponse;
 import com.team25.backend.dto.response.ExpireBillingKeyResponse;
 import com.team25.backend.entity.BillingKey;
+import com.team25.backend.entity.Payment;
+import com.team25.backend.entity.User;
 import com.team25.backend.repository.BillingKeyRepository;
+import com.team25.backend.repository.PaymentRepository;
+import com.team25.backend.repository.UserRepository;
 import com.team25.backend.util.EncryptionUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -16,16 +21,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class PaymentService {
 
     private final RestClient restClient;
     private final BillingKeyRepository billingKeyRepository;
+    private final UserRepository userRepository;
+    private final PaymentRepository paymentRepository;
 
     @Value("${nicepay.clientKey}")
     private String clientKey;
@@ -33,9 +37,11 @@ public class PaymentService {
     @Value("${nicepay.secretKey}")
     private String secretKey;
 
-    public PaymentService(RestClient restClient, BillingKeyRepository billingKeyRepository) {
+    public PaymentService(RestClient restClient, BillingKeyRepository billingKeyRepository, UserRepository userRepository, PaymentRepository paymentRepository) {
         this.restClient = restClient;
         this.billingKeyRepository = billingKeyRepository;
+        this.userRepository = userRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     // Authorization 헤더 생성
@@ -46,12 +52,15 @@ public class PaymentService {
     }
 
     // 빌링키 존재 여부 확인
-    public boolean billingKeyExists(String userId) {
-        return billingKeyRepository.findByUserId(userId).isPresent();
+    public boolean billingKeyExists(String userUuid) {
+        return billingKeyRepository.findByUserUuid(userUuid).isPresent();
     }
 
     // 빌링키 발급
-    public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userId) throws Exception {
+    public BillingKeyResponse createBillingKey(String userUuid, BillingKeyRequest requestDto) throws Exception {
+        User user = userRepository.findByUuid(userUuid)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         String encData = requestDto.encData();
         String orderId = generateOrderId();
 
@@ -86,11 +95,12 @@ public class PaymentService {
 
         if ("0000".equals(responseDto.resultCode())) {
             BillingKey billingKey = new BillingKey();
+            billingKey.setUser(user);
             billingKey.setBid(responseDto.bid());
             billingKey.setCardCode(responseDto.cardCode());
             billingKey.setCardName(responseDto.cardName());
-            billingKey.setUserId(userId);
             billingKey.setOrderId(orderId);
+            billingKey.setCardAlias(requestDto.cardAlias() != null ? requestDto.cardAlias() : responseDto.cardName());
             billingKeyRepository.save(billingKey);
         }
 
@@ -98,9 +108,11 @@ public class PaymentService {
     }
 
     // 결제 요청
-    public PaymentResponse requestPayment(String userId, PaymentRequest requestDto) throws Exception {
-        BillingKey billingKey = billingKeyRepository.findByUserId(userId)
+    public PaymentResponse requestPayment(String userUuid, PaymentRequest requestDto) throws Exception {
+        BillingKey billingKey = billingKeyRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new RuntimeException("Billing key not found"));
+        User user = userRepository.findByUuid(userUuid)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         String bid = billingKey.getBid();
         String orderId = generateOrderId();
@@ -137,12 +149,75 @@ public class PaymentService {
             throw new RuntimeException("Failed to process payment", e);
         }
 
+        if ("0000".equals(responseDto.resultCode())) {
+            Payment payment = new Payment();
+            payment.setUser(user);
+            // payment.setReservation(reservation); 예약 정보 추가 필요
+            payment.setStatus(responseDto.status());
+            payment.setOrderId(responseDto.orderId());
+            payment.setAmount(responseDto.amount());
+            payment.setBalanceAmt(responseDto.balanceAmt());
+            payment.setPaidAt(responseDto.paidAt());
+            payment.setCancelledAt(responseDto.cancelledAt());
+            payment.setGoodsName(responseDto.goodsName());
+            payment.setPayMethod(responseDto.payMethod());
+            payment.setCardAlias(billingKey.getCardName()); // 별칭으로 수정 필요
+            payment.setTid(responseDto.tid());
+            payment.setReceiptUrl(responseDto.receiptUrl());
+            paymentRepository.save(payment);
+        }
+
+        return responseDto;
+    }
+
+    // 결제 취소
+    public PaymentResponse requestCancel(String userUuid, PaymentCancelRequest requestDto) throws Exception {
+        Payment payment = paymentRepository.findByOrderId(requestDto.orderId())
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        if (!Objects.equals(userUuid, payment.getUser().getUuid())) {
+            throw new RuntimeException("Payment user does not belong to this order");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", getAuthorizationHeader());
+
+        // 요청 바디 생성
+        Map<String, Object> body = new HashMap<>();
+        body.put("reason", requestDto.reason());
+        body.put("orderId", requestDto.orderId());
+
+        String url = "https://sandbox-api.nicepay.co.kr/v1/payments/" + payment.getTid() + "/cancel";
+
+        // 요청 및 응답 처리
+        PaymentResponse responseDto;
+        try {
+            responseDto = restClient.post()
+                    .uri(url)
+                    .headers(httpHeaders -> httpHeaders.addAll(headers))
+                    .body(body)
+                    .retrieve()
+                    .body(PaymentResponse.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to process payment", e);
+        }
+
+        if ("0000".equals(responseDto.resultCode())) {
+            payment.setStatus(responseDto.status());
+            payment.setAmount(responseDto.amount());
+            payment.setBalanceAmt(responseDto.balanceAmt());
+            payment.setPaidAt(responseDto.paidAt());
+            payment.setCancelledAt(responseDto.cancelledAt());
+            payment.setReceiptUrl(responseDto.receiptUrl());
+            paymentRepository.save(payment);
+        }
+
         return responseDto;
     }
 
     // 빌링키 삭제
-    public ExpireBillingKeyResponse expireBillingKey(String userId, ExpireBillingKeyRequest requestDto) throws Exception {
-        BillingKey billingKey = billingKeyRepository.findByUserId(userId)
+    public ExpireBillingKeyResponse expireBillingKey(String userUuid, ExpireBillingKeyRequest requestDto) throws Exception {
+        BillingKey billingKey = billingKeyRepository.findByUserUuid(userUuid)
                 .orElseThrow(() -> new RuntimeException("Billing key not found"));
 
         String bid = billingKey.getBid();

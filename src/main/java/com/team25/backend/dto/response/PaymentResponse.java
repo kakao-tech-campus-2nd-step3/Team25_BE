@@ -5,13 +5,12 @@ public record PaymentResponse(
         String resultMsg,
         String tid,
         String orderId,
-        String ediDate,
         String status,
         String paidAt,
+        String cancelledAt,
+        String payMethod,
         int amount,
         int balanceAmt,
         String goodsName,
-        boolean useEscrow,
-        String currency,
         String receiptUrl
 ) {}

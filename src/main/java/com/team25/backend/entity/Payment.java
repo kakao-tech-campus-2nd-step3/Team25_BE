@@ -15,7 +15,7 @@ public class Payment {
 
     // 사용자와의 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     private User user;
 
     // 예약과의 연관 관계

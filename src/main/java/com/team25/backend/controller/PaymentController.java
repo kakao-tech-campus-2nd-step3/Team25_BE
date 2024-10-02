@@ -29,7 +29,7 @@ public class PaymentController {
     @PostMapping("/billing-key")
     public ResponseEntity<ApiResponse<BillingKeyResponse>> createBillingKey(@LoginUser User user, @RequestBody BillingKeyRequest requestDto) throws Exception {
         String userUuid = user.getUuid(); // 현재 사용자 식별자 가져오기
-        BillingKeyResponse responseDto = paymentService.createBillingKey(requestDto, userUuid);
+        BillingKeyResponse responseDto = paymentService.createBillingKey(userUuid, requestDto);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, "빌링키 발급을 성공했습니다.", responseDto), HttpStatus.OK
         );
@@ -47,8 +47,9 @@ public class PaymentController {
 
     // 결제 취소
     @PostMapping("/cancel")
-    public ResponseEntity<ApiResponse<PaymentResponse>> cancel(@RequestBody PaymentCancelRequest requestDto) throws Exception {
-        PaymentResponse responseDto = paymentService.requestCancel(requestDto);
+    public ResponseEntity<ApiResponse<PaymentResponse>> cancel(@LoginUser User user, @RequestBody PaymentCancelRequest requestDto) throws Exception {
+        String userUuid = user.getUuid();
+        PaymentResponse responseDto = paymentService.requestCancel(userUuid, requestDto);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, responseDto.resultMsg(), responseDto), HttpStatus.OK
         );

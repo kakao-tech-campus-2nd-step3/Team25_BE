@@ -34,7 +34,7 @@ public record ManagerProfileResponse(
     ) {
         public static WorkingHourResponse fromEntity(WorkingHour workingHour) {
             return new WorkingHourResponse(
-                workingHour.getDay().getKrName(),
+                workingHour.getDayOfWeek().getKrName(),
                 workingHour.getStartTime(),
                 workingHour.getEndTime()
             );

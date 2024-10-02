@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class PaymentService {
@@ -60,7 +57,7 @@ public class PaymentService {
     }
 
     // 빌링키 발급
-    public BillingKeyResponse createBillingKey(BillingKeyRequest requestDto, String userUuid) throws Exception {
+    public BillingKeyResponse createBillingKey(String userUuid, BillingKeyRequest requestDto) throws Exception {
         String encData = requestDto.encData();
         String orderId = generateOrderId();
 
@@ -170,7 +167,13 @@ public class PaymentService {
     }
 
     // 결제 취소
-    public PaymentResponse requestCancel(PaymentCancelRequest requestDto) throws Exception {
+    public PaymentResponse requestCancel(String userUuid, PaymentCancelRequest requestDto) throws Exception {
+        Payment payment = paymentRepository.findByOrderId(requestDto.orderId())
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        if (!Objects.equals(userUuid, payment.getUser().getUuid())) {
+            throw new RuntimeException("Payment user does not belong to this order");
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", getAuthorizationHeader());
@@ -180,7 +183,7 @@ public class PaymentService {
         body.put("reason", requestDto.reason());
         body.put("orderId", requestDto.orderId());
 
-        String url = "https://sandbox-api.nicepay.co.kr/v1/payments/" + requestDto.tid() + "/cancel";
+        String url = "https://sandbox-api.nicepay.co.kr/v1/payments/" + payment.getTid() + "/cancel";
 
         // 요청 및 응답 처리
         PaymentResponse responseDto;
@@ -193,6 +196,16 @@ public class PaymentService {
                     .body(PaymentResponse.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to process payment", e);
+        }
+
+        if ("0000".equals(responseDto.resultCode())) {
+            payment.setStatus(responseDto.status());
+            payment.setAmount(responseDto.amount());
+            payment.setBalanceAmt(responseDto.balanceAmt());
+            payment.setPaidAt(responseDto.paidAt());
+            payment.setCancelledAt(responseDto.cancelledAt());
+            payment.setReceiptUrl(responseDto.receiptUrl());
+            paymentRepository.save(payment);
         }
 
         return responseDto;

@@ -1,7 +1,9 @@
 package com.team25.backend.controller;
 
+import com.team25.backend.annotation.LoginUser;
 import com.team25.backend.dto.request.*;
 import com.team25.backend.dto.response.*;
+import com.team25.backend.entity.User;
 import com.team25.backend.service.ManagerService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +35,9 @@ public class ManagerController {
 
     @PostMapping("/api/manager")
     public ResponseEntity<ApiResponse<ManagerCreateResponse>> createManager(
-        @RequestBody ManagerCreateRequest request) {
+            @LoginUser User user, @RequestBody ManagerCreateRequest request) {
 
-        ManagerCreateResponse response = managerService.createManager(request);
+        ManagerCreateResponse response = managerService.createManager(user, request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponse.<ManagerCreateResponse>builder()
@@ -45,7 +47,7 @@ public class ManagerController {
                 .build());
     }
 
-    @GetMapping("/api/profile/{manager_id}")
+    @GetMapping("/api/manager/{manager_id}")
     public ResponseEntity<ApiResponse<ManagerProfileResponse>> getManagerProfile(
         @PathVariable("manager_id") Long managerId) {
 

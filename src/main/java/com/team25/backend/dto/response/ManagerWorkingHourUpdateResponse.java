@@ -9,7 +9,7 @@ public record ManagerWorkingHourUpdateResponse(
 ) {
     public static ManagerWorkingHourUpdateResponse fromEntity(WorkingHour workingHour) {
         return new ManagerWorkingHourUpdateResponse(
-            workingHour.getDay().getKrName(),
+            workingHour.getDayOfWeek().getKrName(),
             workingHour.getStartTime(),
             workingHour.getEndTime()
         );

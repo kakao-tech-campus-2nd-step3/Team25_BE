@@ -13,8 +13,16 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@PrimaryKeyJoinColumn(name = "manager_id", referencedColumnName = "user_id")
-public class Manager extends User {
+public class Manager{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "manager_id")
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(length = 50)
     private String managerName;
 
@@ -28,7 +36,4 @@ public class Manager extends User {
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkingHour> workingHours = new ArrayList<>();
-
-    @OneToMany(mappedBy = "manager") // Reservation 관련은 삭제되면 안됨
-    private List<Reservation> reservations = new ArrayList<>();
 }

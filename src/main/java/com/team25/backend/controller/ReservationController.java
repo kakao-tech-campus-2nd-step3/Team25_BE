@@ -5,12 +5,13 @@ import com.team25.backend.dto.request.CancelRequest;
 import com.team25.backend.dto.request.ReservationRequest;
 import com.team25.backend.dto.response.ApiResponse;
 import com.team25.backend.dto.response.ReservationResponse;
-import com.team25.backend.entity.Reservation;
 import com.team25.backend.entity.User;
 import com.team25.backend.service.ReservationService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,19 +30,40 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ReservationResponse>> create(
+    public ResponseEntity<ApiResponse<ReservationResponse>> createReservation(
         @LoginUser User user,
         @Valid @RequestBody ReservationRequest reservationRequest) {
         return new ResponseEntity<>(new ApiResponse<>(true, "예약이 접수되었습니다",
-            reservationService.createReservation(reservationRequest,user)
+            reservationService.createReservation(reservationRequest, user)
         ), HttpStatus.CREATED);
     }
 
     @PatchMapping("/cancel") // 이미 취소된 것을 다시 또 취소하는 경우 에러 처리 필요
-    public ResponseEntity<ApiResponse<ReservationResponse>> cancel(
+    public ResponseEntity<ApiResponse<ReservationResponse>> cancelReservation(
         @LoginUser User user,
         @Valid @RequestBody CancelRequest cancelRequest) {
         return new ResponseEntity<>(new ApiResponse<>(true, "예약 취수가 접수되었습니다",
             reservationService.cancelReservation(user, cancelRequest)), HttpStatus.OK);
+    }
+
+    @GetMapping("/{reservation_id}")
+    public ResponseEntity<ApiResponse<ReservationResponse>> getReservations(
+        @LoginUser User user,
+        @PathVariable(name = "reservation_id") Long reservationId
+    ) {
+        return new ResponseEntity<>(
+            new ApiResponse<>(true, "예악 조회가 성공하였습니다.",
+                reservationService.getReservationById(user, reservationId)
+            ), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getReservations(
+        @LoginUser User user
+    ) {
+        return new ResponseEntity<>(
+            new ApiResponse<>(true, "사용자의 예약 목록을 조회하였습니다.",
+                reservationService.getAllReservations(user)
+            ), HttpStatus.OK);
     }
 }

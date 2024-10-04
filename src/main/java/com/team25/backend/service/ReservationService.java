@@ -14,7 +14,9 @@ import com.team25.backend.repository.ReservationRepository;
 import com.team25.backend.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -37,40 +39,80 @@ public class ReservationService {
         this.patientService = patientService;
     }
 
+    // 예약 전체 조회
+    public List<ReservationResponse> getAllReservations(User user) {
+        List<Reservation> reservations = user.getReservations();
+        List<ReservationResponse> responseList = new ArrayList<>();
+        for (Reservation reservation : reservations) {
+            responseList.add(
+                new ReservationResponse(
+                    reservation.getDepartureLocation(),
+                    reservation.getArrivalLocation(),
+                    reservation.getReservationDateTime(),
+                    reservation.getServiceType(),
+                    reservation.getTransportation(),
+                    reservation.getPrice()
+                )
+            );
+        }
+        return responseList;
+    }
+
+    // 단일 예약 조회
+    public ReservationResponse getReservationById(User user, Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+            .orElseThrow(() -> new IllegalArgumentException("없는 예약 번호입니다."));
+        if (!user.getReservations().contains(reservation)) {
+            throw new IllegalArgumentException("해당 회원의 예약 번호가 아닙니다.");
+        }
+        return new ReservationResponse(
+            reservation.getDepartureLocation(),
+            reservation.getArrivalLocation(),
+            reservation.getReservationDateTime(),
+            reservation.getServiceType(),
+            reservation.getTransportation(),
+            reservation.getPrice()
+        );
+    }
+
     // 예약 작성
-    public ReservationResponse createReservation(ReservationRequest reservationRequest,User user) {
+    public ReservationResponse createReservation(ReservationRequest reservationRequest, User user) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime reservationDateTime = LocalDateTime.parse(
                 reservationRequest.reservationDateTime(), formatter);
             Manager manager = managerRepository.findById(reservationRequest.managerId())
-                .orElseThrow(()->new IllegalArgumentException("해당 ID의 매니저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 매니저를 찾을 수 없습니다."));
             Patient patient = patientService.addPatient(reservationRequest.patientRequest());
             Reservation reservation = Reservation.builder()
                 .departureLocation(reservationRequest.departureLocation())
                 .arrivalLocation(reservationRequest.arrivalLocation())
                 .reservationDateTime(reservationDateTime)
                 .serviceType(reservationRequest.serviceType())
-                .transportation(reservationRequest.transportation()).price(Integer.parseInt(
-                    reservationRequest.price()))
-                .createdTime(LocalDateTime.now()).reservationStatus(ReservationStatus.CONFIRMED)
+                .transportation(reservationRequest.transportation())
+                .price(reservationRequest.price())
+                .createdTime(LocalDateTime.now())
+                .reservationStatus(ReservationStatus.CONFIRMED)
                 .patient(patient)
                 .manager(manager)
                 .user(user)
                 .build();
 
             reservationRepository.save(reservation);
-            return new ReservationResponse(reservation.getDepartureLocation(),
-                reservation.getArrivalLocation(), reservation.getReservationDateTime().toString(),
-                reservation.getServiceType(), reservation.getTransportation(),
-                Integer.toString(reservation.getPrice()));
+            return new ReservationResponse(
+                reservation.getDepartureLocation(),
+                reservation.getArrivalLocation(),
+                reservation.getReservationDateTime(),
+                reservation.getServiceType(),
+                reservation.getTransportation(),
+                reservation.getPrice());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("보호자 전화번호를 반드시 입력해야 합니다.");
         }
     }
 
     // 예약 취소
-    public ReservationResponse cancelReservation(User user,CancelRequest cancelRequest) {
+    public ReservationResponse cancelReservation(User user, CancelRequest cancelRequest) {
         // 해당 reservationDTO를 통해 특정 예약을 어떻게 하면 잡아낼 수 있는가?
         // checkDetailIsNull(cancelDto); // cancelDto에 상세 사유 없으면 예외 처리
         Reservation canceledReservation = user.getReservations().getLast();
@@ -85,9 +127,10 @@ public class ReservationService {
         reservationRepository.save(canceledReservation);
         return new ReservationResponse(canceledReservation.getDepartureLocation(),
             canceledReservation.getArrivalLocation(),
-            canceledReservation.getReservationDateTime().toString(),
-            canceledReservation.getServiceType(), canceledReservation.getTransportation(),
-            Integer.toString(canceledReservation.getPrice()));
+            canceledReservation.getReservationDateTime(),
+            canceledReservation.getServiceType(),
+            canceledReservation.getTransportation(),
+            canceledReservation.getPrice());
     }
 
     private static void addCancelReasonAndDetail(Reservation canceledReservation,

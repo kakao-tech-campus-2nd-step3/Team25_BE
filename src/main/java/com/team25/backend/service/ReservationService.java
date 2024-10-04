@@ -120,7 +120,7 @@ public class ReservationService {
             throw new IllegalArgumentException("이미 취소된 예약입니다");
         }
         CancelReason cancelReason = Arrays.stream(CancelReason.values()) // 해당 취소 이유를 Enum 타입에서 선별
-            .filter(reason -> reason.getKrName().equals(cancelRequest.cancelReason())).findFirst()
+            .filter(reason -> reason.toString().equals(cancelRequest.cancelReason())).findFirst()
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 취소 타입입니다."));
         addCancelReasonAndDetail(canceledReservation, cancelReason,
             cancelRequest.cancelDetail()); // 예약에 취소 사유와 상세 정보 추가

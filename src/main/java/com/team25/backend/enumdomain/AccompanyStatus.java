@@ -1,15 +1,20 @@
 package com.team25.backend.enumdomain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@AllArgsConstructor
-@Getter
 public enum AccompanyStatus {
-    TO_HOSPITAL("병원 이동"),
-    IN_CLINIC("진료 중"),
-    MEDICINE("약국"),
-    TO_HOME("귀가중");
-
-    private final String krName;
+    @JsonProperty("병원 이동")
+    ARRIVE_AT_HOSPITAL,
+    @JsonProperty("진료 접수")
+    REGISTER,
+    @JsonProperty("검사 및 진료")
+    EXAMINATION,
+    @JsonProperty("진료 예약")
+    SCHEDULE_FOLLOWUP,
+    @JsonProperty("수납 및 서류 발급")
+    PAYMENT_AND_DOCS,
+    @JsonProperty("약국 동행")
+    VISIT_PHARMACY,
+    @JsonProperty("귀가")
+    RETURN_HOME;
 }

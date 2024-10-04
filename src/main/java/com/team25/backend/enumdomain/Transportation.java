@@ -1,15 +1,12 @@
 package com.team25.backend.enumdomain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum Transportation {
-    WALK("도보"), TAXI("택시");
-
-    private final String krName;
-
-    Transportation(String krName) {
-        this.krName = krName;
-    }
-
-    public String getKrName() {
-        return krName;
-    }
+    @JsonProperty("도보")
+    WALK,
+    @JsonProperty("택시")
+    TAXI,
+    @JsonProperty("대중교통")
+    PUBLIC_TRANSPORTATION;
 }

@@ -4,6 +4,7 @@ import com.team25.backend.dto.request.*;
 import com.team25.backend.dto.response.*;
 import com.team25.backend.entity.Manager;
 import com.team25.backend.entity.Certificate;
+import com.team25.backend.entity.User;
 import com.team25.backend.entity.WorkingHour;
 import com.team25.backend.enumdomain.Day;
 import com.team25.backend.exception.ManagerException;
@@ -13,6 +14,7 @@ import com.team25.backend.repository.CertificateRepository;
 import com.team25.backend.repository.WorkingHourRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -36,7 +38,7 @@ public class ManagerService {
         LocalDate localDate = LocalDate.parse(date, formatter);
         Day day = Day.fromEnglishName(localDate.getDayOfWeek().toString());
 
-        List<Manager> managers = managerRepository.findByWorkingHoursDayAndWorkingRegion(day, region);
+        List<Manager> managers = managerRepository.findByWorkingHoursDayOfWeekAndWorkingRegion(day, region);
 
         return managers.stream()
             .map(ManagerByDateAndRegionResponse::fromEntity)
@@ -62,22 +64,29 @@ public class ManagerService {
         return List.of("Seoul", "Busan", "Daegu").contains(region);
     }
 
-    public ManagerCreateResponse createManager(ManagerCreateRequest request) {
+    @Transactional
+    public ManagerCreateResponse createManager(User user, ManagerCreateRequest request) {
+
+        if (user.getId() == null) {
+            throw new IllegalArgumentException("User ID가 null입니다. 이미 존재하는 User를 사용해야 합니다.");
+        }
+
         validateCreateRequest(request);
 
         Manager manager = Manager.builder()
-            .managerName(request.name())
-            .profileImage(request.profileImage())
-            .career(request.career())
-            .comment(request.comment())
-            .build();
+                .user(user)
+                .managerName(request.name())
+                .profileImage(request.profileImage())
+                .career(request.career())
+                .comment(request.comment())
+                .build();
 
         managerRepository.save(manager);
 
         Certificate certificate = Certificate.builder()
-            .certificateImage(request.certificateImage())
-            .manager(manager)
-            .build();
+                .certificateImage(request.certificateImage())
+                .manager(manager)
+                .build();
 
         certificateRepository.save(certificate);
 
@@ -104,7 +113,7 @@ public class ManagerService {
         validateWorkingHourRequest(request);
 
         WorkingHour workingHour = WorkingHour.builder()
-            .day(Day.fromKoreanName(request.day()))
+            .dayOfWeek(Day.fromKoreanName(request.day()))
             .startTime(request.startTime())
             .endTime(request.endTime())
             .manager(manager)
@@ -201,7 +210,7 @@ public class ManagerService {
 
         validateWorkingHourRequest(request);
 
-        workingHour.setDay(Day.fromKoreanName(request.day()));
+        workingHour.setDayOfWeek(Day.fromKoreanName(request.day()));
         workingHour.setStartTime(request.startTime());
         workingHour.setEndTime(request.endTime());
         workingHourRepository.save(workingHour);

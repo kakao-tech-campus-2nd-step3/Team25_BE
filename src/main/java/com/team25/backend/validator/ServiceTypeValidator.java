@@ -8,9 +8,12 @@ import java.util.List;
 
 public class ServiceTypeValidator implements ConstraintValidator<ValidServiceType, ServiceType> {
 
-    private static final List<ServiceType> SERVICE_TYPE = List.of(ServiceType.ACCOMPANIMENT,
-        ServiceType.OUTPATIENT, ServiceType.CONSULTATION, ServiceType.EMERGENCY,
-        ServiceType.ENDOSCOPY);
+    private static final List<ServiceType> SERVICE_TYPE = List.of(
+        ServiceType.GUARDIAN_PROXY,
+        ServiceType.ADMISSION_DISCHARGE_SUPPORT,
+        ServiceType.SPECIALIZED_ACCOMPANIMENT,
+        ServiceType.REGULAR_ACCOMPANIMENT,
+        ServiceType.CLINIC_ESCORT);
 
     @Override
     public boolean isValid(ServiceType value, ConstraintValidatorContext context) {

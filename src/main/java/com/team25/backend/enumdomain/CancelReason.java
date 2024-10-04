@@ -1,21 +1,22 @@
 package com.team25.backend.enumdomain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum CancelReason {
-    PATIENTCANCEL("피진료자취소"),
-    MANAGERCANCEL("매니저취소"),
-    NOKCANCEL("보호자취소"),
-    CHANGE_OF_MIND("단순변심"),// 단순 변심
-    SECHEDULEDREBOOK("재예약예정"),// 재예약 예정
-    NONE("취소안함"),
-    NONEMATCHED("매니저매치안됨");// 매니저 매치 안됨
-
-    private final String krName;
-
-    CancelReason(String krName) {
-        this.krName = krName;
-    }
-
-    public String getKrName() {
-        return krName;
-    }
+    @JsonProperty("피진료자취소")
+    PATIENT_CANCEL,
+    @JsonProperty("매니저취소")
+    MANAGER_CANCEL,
+    @JsonProperty("보호자취소")
+    CAREGIVER_CANCEL,
+    @JsonProperty("단순변심")
+    CHANGE_OF_MIND,
+    @JsonProperty("재예약예정")
+    SECHEDULED_REBOOK,
+    @JsonProperty("취소안함")
+    NO_CANCEL,
+    @JsonProperty("매니저매치안됨")
+    NO_NANGER_MATCHED,
+    @JsonProperty("예약 결제 실패")
+    PAYMENT_FAILER;
 }

@@ -2,12 +2,12 @@ package com.team25.backend.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team25.backend.dto.CustomUserDetails;
+import com.team25.backend.dto.response.TokenResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -62,10 +62,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         log.info("access token: " + access);
         String refresh = jwtUtil.createJwt("refresh", uuid, 86400000L);
 
-        //응답 설정
-        response.setHeader("access", access);
-        response.addCookie(createCookie("refresh", refresh));
-        response.setStatus(HttpStatus.OK.value());
+        // TokenResponse 객체 생성
+        TokenResponse tokenResponse = new TokenResponse(access, refresh);
+
+        // 응답 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // 상태 코드 200 설정
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        // TokenResponse를 JSON으로 변환하여 응답에 작성
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writeValueAsString(tokenResponse);
+            response.getWriter().write(jsonResponse);
+        } catch (Exception e) {
+            log.error("Error while sending token response", e);
+        }
+
+
     }
 
     //로그인 실패시 실행하는 메소드

@@ -1,14 +1,12 @@
 package com.team25.backend.enumdomain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Getter
-@AllArgsConstructor
 public enum PatientGender {
-    FEMALE("여성"),
-    MALE("남성"),
-    OTHER("기타");
-
-    private final String krName;
+    @JsonProperty("여성")
+    FEMALE,
+    @JsonProperty("남성")
+    MALE,
+    @JsonProperty("기타")
+    OTHER;
 }

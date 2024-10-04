@@ -1,17 +1,14 @@
 package com.team25.backend.enumdomain;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Getter
 public enum ReservationStatus {
-    HOLD("보류"),
-    CONFIRMED("확정"),
-    CANCEL("취소");
+    @JsonProperty("보류")
+    HOLD,
 
-    private final String krName;
+    @JsonProperty("확정")
+    CONFIRMED,
 
-    ReservationStatus(String krName) {
-        this.krName = krName;
-    }
-
+    @JsonProperty("취소")
+    CANCEL;
 }

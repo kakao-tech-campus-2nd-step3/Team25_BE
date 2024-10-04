@@ -1,14 +1,12 @@
 package com.team25.backend.enumdomain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Getter
-@AllArgsConstructor
 public enum Transportation {
-    WALK("도보"),
-    TAXI("택시"),
-    PUBLIC_TRANSPORTATION("대중교통");
-
-    private final String krName;
+    @JsonProperty("도보")
+    WALK,
+    @JsonProperty("택시")
+    TAXI,
+    @JsonProperty("대중교통")
+    PUBLIC_TRANSPORTATION;
 }

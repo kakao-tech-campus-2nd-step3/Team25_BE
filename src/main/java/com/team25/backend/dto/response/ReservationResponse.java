@@ -10,15 +10,16 @@ import com.team25.backend.enumdomain.Transportation;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 public record ReservationResponse(
     String departureLocation,
     String arrivalLocation,
-    String reservationDateTime,
+    LocalDateTime reservationDateTime,
     ServiceType serviceType,
     Transportation transportation,
-    String price) {
+    int price) {
 
 }

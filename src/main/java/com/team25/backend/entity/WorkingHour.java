@@ -17,7 +17,8 @@ public class WorkingHour {
     private Long workingHourId;
 
     @Enumerated(EnumType.STRING)
-    private Day day;
+    @Column(name = "day_of_week")
+    private Day dayOfWeek;
 
     private String startTime;
     private String endTime;

@@ -33,16 +33,15 @@ public class ReservationController {
         @LoginUser User user,
         @Valid @RequestBody ReservationRequest reservationRequest) {
         return new ResponseEntity<>(new ApiResponse<>(true, "예약이 접수되었습니다",
-            reservationService.createReservation(reservationRequest)
+            reservationService.createReservation(reservationRequest,user)
         ), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/cancel/{reservation_id}") // 이미 취소된 것을 다시 또 취소하는 경우 에러 처리 필요
+    @PatchMapping("/cancel") // 이미 취소된 것을 다시 또 취소하는 경우 에러 처리 필요
     public ResponseEntity<ApiResponse<ReservationResponse>> cancel(
         @LoginUser User user,
-        @PathVariable(value = "reservation_id") Long reservation_id,
         @Valid @RequestBody CancelRequest cancelRequest) {
         return new ResponseEntity<>(new ApiResponse<>(true, "예약 취수가 접수되었습니다",
-            reservationService.cancelReservation(reservation_id, cancelRequest)), HttpStatus.OK);
+            reservationService.cancelReservation(user, cancelRequest)), HttpStatus.OK);
     }
 }

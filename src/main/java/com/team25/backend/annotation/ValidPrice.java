@@ -1,6 +1,7 @@
 package com.team25.backend.annotation;
 
 import com.team25.backend.validator.IntegerValidator;
+import com.team25.backend.validator.PriceValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.Documented;
@@ -11,7 +12,7 @@ import java.lang.annotation.Target;
 
 @ValidInteger
 @Documented
-@Constraint(validatedBy = IntegerValidator.class)
+@Constraint(validatedBy = PriceValidator.class)
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPrice {

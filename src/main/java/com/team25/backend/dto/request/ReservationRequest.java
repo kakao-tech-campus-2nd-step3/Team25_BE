@@ -1,4 +1,4 @@
-package com.team25.backend.dto;
+package com.team25.backend.dto.request;
 
 import com.team25.backend.annotation.ValidArrivalLocation;
 import com.team25.backend.annotation.ValidDepartureLocation;
@@ -10,10 +10,13 @@ import com.team25.backend.enumdomain.Transportation;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-public record ReservationDto(
+public record ReservationRequest(
+    @NotNull @Positive Long userId,
+    @NotNull @Positive Long managerId,
     @ValidDepartureLocation String departureLocation,
     @ValidArrivalLocation String arrivalLocation,
     @NotNull(message = "예약 일시를 입력해 주십시오.")
@@ -21,6 +24,9 @@ public record ReservationDto(
     String reservationDateTime,
     @ValidServiceType ServiceType serviceType,
     @ValidTransportation Transportation transportation,
-    @Min(value = 0, message = "가격은 0 이상 입니다.") @ValidPrice String price) {
+    @Min(value = 0, message = "가격은 0 이상 입니다.")
+    @ValidPrice int price,
+    @NotNull PatientRequest patientRequest
+) {
 
 }

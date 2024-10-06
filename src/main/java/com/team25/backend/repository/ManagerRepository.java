@@ -1,10 +1,11 @@
 package com.team25.backend.repository;
 
 import com.team25.backend.entity.Manager;
-import java.util.List;
+import com.team25.backend.enumdomain.Day;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ManagerRepository extends JpaRepository<Manager, Long> {
+import java.util.List;
 
-  List<Manager> findByWorkingRegion(String region);
+public interface ManagerRepository extends JpaRepository<Manager, Long> {
+  List<Manager> findByWorkingHoursDayOfWeekAndWorkingRegion(Day workingHours_day, String workingRegion);
 }

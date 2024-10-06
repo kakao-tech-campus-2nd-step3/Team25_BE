@@ -1,15 +1,25 @@
 package com.team25.backend.enumdomain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@AllArgsConstructor
 public enum TimeInterval {
-    THIRTY_MINUTE("30분"),
-    ONE_HOUR("1시간");
+    @JsonProperty("식후 30분")
+    AFTER_MEAL(null),
+    @JsonProperty("식전 30분")
+    BEFORE_MEAL(null),
+    @JsonProperty("식간")
+    IN_MEAL(null),
+    @JsonProperty("일정한 시간 간격")
+    INTERVAL(null),
+    @JsonProperty("특정 시간")
+    AT_TIME(null);
 
-    private final String koreanName;
+    @Setter
+    private String times;
 
-    TimeInterval(String koreanName) {
-        this.koreanName = koreanName;
-    }
 }

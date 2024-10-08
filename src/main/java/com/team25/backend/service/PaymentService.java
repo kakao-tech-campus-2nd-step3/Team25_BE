@@ -14,7 +14,6 @@ import com.team25.backend.repository.BillingKeyRepository;
 import com.team25.backend.repository.PaymentRepository;
 import com.team25.backend.repository.UserRepository;
 import com.team25.backend.util.EncryptionUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -48,6 +47,19 @@ public class PaymentService {
         return "Basic " + encodedCredentials;
     }
 
+    // 요청 바디 생성
+    private Map<String, Object> getRequestBody(Map<String, Object> customParams, String ediDate, String signData) {
+        Map<String, Object> body = new HashMap<>(customParams);
+        if (ediDate != null) {
+            body.put("ediDate", ediDate);
+        }
+        if (signData != null) {
+            body.put("signData", signData);
+        }
+        return body;
+    }
+
+
     // 빌링키 존재 여부 확인
     public boolean billingKeyExists(String userUuid) {
         return billingKeyRepository.findByUserUuid(userUuid).isPresent();
@@ -69,11 +81,11 @@ public class PaymentService {
         String signData = EncryptionUtil.generateSignData(orderId, ediDate, SECRET_KEY);
 
         // 요청 바디 생성
-        Map<String, Object> body = new HashMap<>();
-        body.put("encData", encData);
-        body.put("orderId", orderId);
-        body.put("ediDate", ediDate);
-        body.put("signData", signData);
+        Map<String, Object> customParams = new HashMap<>();
+        customParams.put("encData", encData);
+        customParams.put("orderId", orderId);
+
+        Map<String, Object> body = getRequestBody(customParams, ediDate, signData);
 
         String url = "https://sandbox-api.nicepay.co.kr/v1/subscribe/regist";
 
@@ -122,14 +134,14 @@ public class PaymentService {
         String signData = EncryptionUtil.generateSignData(orderId, bid, ediDate, SECRET_KEY);
 
         // 요청 바디 생성
-        Map<String, Object> body = new HashMap<>();
-        body.put("orderId", orderId);
-        body.put("amount", requestDto.amount());
-        body.put("goodsName", requestDto.goodsName());
-        body.put("cardQuota", requestDto.cardQuota());
-        body.put("useShopInterest", requestDto.useShopInterest());
-        body.put("ediDate", ediDate);
-        body.put("signData", signData);
+        Map<String, Object> customParams = new HashMap<>();
+        customParams.put("orderId", orderId);
+        customParams.put("amount", requestDto.amount());
+        customParams.put("goodsName", requestDto.goodsName());
+        customParams.put("cardQuota", requestDto.cardQuota());
+        customParams.put("useShopInterest", requestDto.useShopInterest());
+
+        Map<String, Object> body = getRequestBody(customParams, ediDate, signData);
 
         String url = "https://sandbox-api.nicepay.co.kr/v1/subscribe/" + bid + "/payments";
 
@@ -158,7 +170,7 @@ public class PaymentService {
             payment.setCancelledAt(responseDto.cancelledAt());
             payment.setGoodsName(responseDto.goodsName());
             payment.setPayMethod(responseDto.payMethod());
-            payment.setCardAlias(billingKey.getCardName()); // 별칭으로 수정 필요
+            payment.setCardAlias(billingKey.getCardAlias());
             payment.setTid(responseDto.tid());
             payment.setReceiptUrl(responseDto.receiptUrl());
             paymentRepository.save(payment);
@@ -180,9 +192,12 @@ public class PaymentService {
         headers.set("Authorization", getAuthorizationHeader());
 
         // 요청 바디 생성
-        Map<String, Object> body = new HashMap<>();
-        body.put("reason", requestDto.reason());
-        body.put("orderId", requestDto.orderId());
+        Map<String, Object> customParams = new HashMap<>();
+        customParams.put("reason", requestDto.reason());
+        customParams.put("orderId", requestDto.orderId());
+
+        // 취소 요청에서는 ediDate와 signData가 필요 없으므로 null 전달
+        Map<String, Object> body = getRequestBody(customParams, null, null);
 
         String url = "https://sandbox-api.nicepay.co.kr/v1/payments/" + payment.getTid() + "/cancel";
 
@@ -227,10 +242,10 @@ public class PaymentService {
         String signData = EncryptionUtil.generateSignData(requestDto.orderId(), bid, ediDate, SECRET_KEY);
 
         // 요청 바디 생성
-        Map<String, Object> body = new HashMap<>();
-        body.put("orderId", requestDto.orderId());
-        body.put("ediDate", ediDate);
-        body.put("signData", signData);
+        Map<String, Object> customParams = new HashMap<>();
+        customParams.put("orderId", requestDto.orderId());
+
+        Map<String, Object> body = getRequestBody(customParams, ediDate, signData);
 
         String url = "https://sandbox-api.nicepay.co.kr/v1/subscribe/" + bid + "/expire";
 
@@ -263,4 +278,3 @@ public class PaymentService {
         return java.time.ZonedDateTime.now().toString();
     }
 }
-

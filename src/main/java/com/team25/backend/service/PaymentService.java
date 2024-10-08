@@ -31,11 +31,8 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
 
-    @Value("${nicepay.clientKey}")
-    private String clientKey;
-
-    @Value("${nicepay.secretKey}")
-    private String secretKey;
+    private static final String CLIENT_KEY = System.getenv("NICEPAY_CLIENT_KEY");
+    private static final String SECRET_KEY = System.getenv("NICEPAY_SECRET_KEY");
 
     public PaymentService(RestClient restClient, BillingKeyRepository billingKeyRepository, UserRepository userRepository, PaymentRepository paymentRepository) {
         this.restClient = restClient;
@@ -46,7 +43,7 @@ public class PaymentService {
 
     // Authorization 헤더 생성
     private String getAuthorizationHeader() {
-        String credentials = clientKey + ":" + secretKey;
+        String credentials = CLIENT_KEY + ":" + SECRET_KEY;
         String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         return "Basic " + encodedCredentials;
     }
@@ -69,7 +66,7 @@ public class PaymentService {
         headers.set("Authorization", getAuthorizationHeader());
 
         String ediDate = getEdiDate();
-        String signData = EncryptionUtil.generateSignData(orderId, ediDate, secretKey);
+        String signData = EncryptionUtil.generateSignData(orderId, ediDate, SECRET_KEY);
 
         // 요청 바디 생성
         Map<String, Object> body = new HashMap<>();
@@ -122,7 +119,7 @@ public class PaymentService {
         headers.set("Authorization", getAuthorizationHeader());
 
         String ediDate = getEdiDate();
-        String signData = EncryptionUtil.generateSignData(orderId, bid, ediDate, secretKey);
+        String signData = EncryptionUtil.generateSignData(orderId, bid, ediDate, SECRET_KEY);
 
         // 요청 바디 생성
         Map<String, Object> body = new HashMap<>();
@@ -227,7 +224,7 @@ public class PaymentService {
         headers.set("Authorization", getAuthorizationHeader());
 
         String ediDate = getEdiDate();
-        String signData = EncryptionUtil.generateSignData(requestDto.orderId(), bid, ediDate, secretKey);
+        String signData = EncryptionUtil.generateSignData(requestDto.orderId(), bid, ediDate, SECRET_KEY);
 
         // 요청 바디 생성
         Map<String, Object> body = new HashMap<>();

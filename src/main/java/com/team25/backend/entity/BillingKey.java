@@ -1,5 +1,6 @@
 package com.team25.backend.entity;
 
+import com.team25.backend.util.BillingKeyAttributeConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class BillingKey {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     private User user;
 
+    @Convert(converter = BillingKeyAttributeConverter.class)
     private String bid; // 발급된 빌링키
     private String cardCode;
     private String cardName;

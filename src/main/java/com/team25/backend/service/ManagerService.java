@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -180,6 +181,12 @@ public class ManagerService {
         }
         if (!endTime.matches("\\d{2}:\\d{2}")) {
             throw new ManagerException(ManagerErrorCode.INVALID_WORKING_HOUR_FORMAT);
+        }
+
+        LocalTime start = LocalTime.parse(startTime);
+        LocalTime end = LocalTime.parse(endTime);
+        if (!start.isBefore(end)) {
+            throw new ManagerException(ManagerErrorCode.INVALID_TIME_RANGE);
         }
     }
 

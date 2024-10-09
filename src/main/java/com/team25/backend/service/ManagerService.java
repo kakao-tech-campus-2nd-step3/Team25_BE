@@ -82,7 +82,10 @@ public class ManagerService {
     }
 
     private boolean regionExists(String region) {
-        return List.of("Seoul", "Busan", "Daegu").contains(region);
+        return List.of("부산광역시 중구", "부산광역시 서구", "부산광역시 동구", "부산광역시 영도구",
+            "부산광역시 부산진구", "부산광역시 동래구", "부산광역시 남구", "부산광역시 북구",
+            "부산광역시 해운대구", "부산광역시 사하구", "부산광역시 금정구", "부산광역시 강서구",
+            "부산광역시 연제구", "부산광역시 수영구", "부산광역시 사상구", "부산광역시 기장군").contains(region);
     }
 
     @Transactional

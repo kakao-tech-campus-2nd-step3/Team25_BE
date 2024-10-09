@@ -185,8 +185,10 @@ public class ManagerService {
 
         LocalTime start = LocalTime.parse(startTime);
         LocalTime end = LocalTime.parse(endTime);
-        if (!start.isBefore(end)) {
-            throw new ManagerException(ManagerErrorCode.INVALID_TIME_RANGE);
+        if (!(start.equals(LocalTime.MIDNIGHT) && end.equals(LocalTime.MIDNIGHT))) {
+            if (!start.isBefore(end)) {
+                throw new ManagerException(ManagerErrorCode.INVALID_TIME_RANGE);
+            }
         }
     }
 

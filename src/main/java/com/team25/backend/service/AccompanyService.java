@@ -4,7 +4,6 @@ import com.team25.backend.dto.request.AccompanyRequest;
 import com.team25.backend.dto.response.AccompanyResponse;
 import com.team25.backend.entity.Accompany;
 import com.team25.backend.entity.Reservation;
-import com.team25.backend.enumdomain.AccompanyStatus;
 import com.team25.backend.repository.AccompanyRepository;
 import com.team25.backend.repository.ReservationRepository;
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class AccompanyService {
     // 실시간 동행 정보 조회
     public List<AccompanyResponse> getTrackingAccompanies(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
         List<Accompany> accompanies = reservation.getAccompany();
         List<AccompanyResponse> accompaniesResponse = new ArrayList<>();
         for (Accompany accompany : accompanies) {
@@ -41,21 +40,20 @@ public class AccompanyService {
     // 실시간 동행 정보 생성
     public AccompanyResponse addTrackingAccompany(Long reservationId,
         AccompanyRequest accompanyRequest) {
-        AccompanyStatus accompanyStatus = AccompanyStatus.valueOf(
-            accompanyRequest.accompanyStatus());
-        Accompany track = Accompany.builder().accompanyStatus(accompanyStatus)
-            .time(accompanyRequest.time()).latitude(accompanyRequest.latitude())
+        Accompany track = Accompany.builder().accompanyStatus(accompanyRequest.status())
+            .time(accompanyRequest.statusDate()).latitude(accompanyRequest.latitude())
             .longitude(accompanyRequest.longitude()).longitude(accompanyRequest.longitude())
-            .detail(accompanyRequest.detail()).build();
+            .detail(accompanyRequest.statusDescribe()).build();
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow(()->new IllegalArgumentException("존재하지 않는 예약입니다."));
         reservation.getAccompany().add(track);
         reservationRepository.save(reservation);
         accompanyRepository.save(track);
         return new AccompanyResponse(
-            accompanyStatus,
-            accompanyRequest.latitude(), accompanyRequest.longitude(), accompanyRequest.time(),
-            accompanyRequest.detail());
+            accompanyRequest.status(),
+            accompanyRequest.latitude(), accompanyRequest.longitude(),
+            accompanyRequest.statusDate(),
+            accompanyRequest.statusDescribe());
     }
 
 }

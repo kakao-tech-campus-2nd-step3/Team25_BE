@@ -35,8 +35,8 @@ public class Patient {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "patient_gender",nullable = false)
-    private PatientGender patientGender;
+    @Column(name = "patient_gender", nullable = false)
+    private PatientGender gender;
 
     @Column(name = "patient_birth", nullable = false)
     private LocalDateTime birthDate;

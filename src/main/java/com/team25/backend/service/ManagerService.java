@@ -113,10 +113,21 @@ public class ManagerService {
         validateWorkingHourRequest(request);
 
         WorkingHour workingHour = WorkingHour.builder()
-            .dayOfWeek(Day.fromKoreanName(request.day()))
-            .startTime(request.startTime())
-            .endTime(request.endTime())
             .manager(manager)
+            .monStartTime(request.monStartTime())
+            .monEndTime(request.monEndTime())
+            .tueStartTime(request.tueStartTime())
+            .tueEndTime(request.tueEndTime())
+            .wedStartTime(request.wedStartTime())
+            .wedEndTime(request.wedEndTime())
+            .thuStartTime(request.thuStartTime())
+            .thuEndTime(request.thuEndTime())
+            .friStartTime(request.friStartTime())
+            .friEndTime(request.friEndTime())
+            .satStartTime(request.satStartTime())
+            .satEndTime(request.satEndTime())
+            .sunStartTime(request.sunStartTime())
+            .sunEndTime(request.sunEndTime())
             .build();
 
         workingHourRepository.save(workingHour);
@@ -125,23 +136,24 @@ public class ManagerService {
     }
 
     private void validateWorkingHourRequest(ManagerWorkingHourCreateRequest request) {
-        validateWorkingHour(request.startTime(), request.endTime(), request.day());
+        validateWorkingHour(request.monStartTime(), request.monEndTime());
+        validateWorkingHour(request.tueStartTime(), request.tueEndTime());
+        validateWorkingHour(request.wedStartTime(), request.wedEndTime());
+        validateWorkingHour(request.thuStartTime(), request.thuEndTime());
+        validateWorkingHour(request.friStartTime(), request.friEndTime());
+        validateWorkingHour(request.satStartTime(), request.satEndTime());
+        validateWorkingHour(request.sunStartTime(), request.sunEndTime());
     }
 
-    private void validateWorkingHour(String startTime, String endTime, String day) {
+    private void validateWorkingHour(String startTime, String endTime) {
         if (!startTime.matches("\\d{2}:\\d{2}")) {
             throw new ManagerException(ManagerErrorCode.INVALID_WORKING_HOUR_FORMAT);
         }
         if (!endTime.matches("\\d{2}:\\d{2}")) {
             throw new ManagerException(ManagerErrorCode.INVALID_WORKING_HOUR_FORMAT);
         }
-
-        try {
-            Day.fromKoreanName(day);
-        } catch (IllegalArgumentException e) {
-            throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
-        }
     }
+
 
     public ManagerProfileImageUpdateResponse updateProfileImage(Long managerId, ManagerProfileImageUpdateRequest request) {
         Manager manager = managerRepository.findById(managerId)

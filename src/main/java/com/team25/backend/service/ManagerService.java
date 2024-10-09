@@ -35,7 +35,7 @@ public class ManagerService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = LocalDate.parse(date, formatter);
-        String dayOfWeek = localDate.getDayOfWeek().toString().toLowerCase(); // 예: "monday"
+        String dayOfWeek = localDate.getDayOfWeek().toString().toLowerCase();
 
         List<Manager> managers = managerRepository.findByWorkingRegion(region).stream()
             .filter(manager -> hasWorkingHoursOnDay(manager.getWorkingHour(), dayOfWeek))
@@ -269,21 +269,5 @@ public class ManagerService {
         validateWorkingHour(request.friStartTime(), request.friEndTime());
         validateWorkingHour(request.satStartTime(), request.satEndTime());
         validateWorkingHour(request.sunStartTime(), request.sunEndTime());
-    }
-
-    public ManagerWorkingHourDeleteResponse deleteWorkingHour(Long managerId, Long workingHoursId) {
-        Manager manager = managerRepository.findById(managerId)
-            .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
-
-        WorkingHour workingHour = workingHourRepository.findById(workingHoursId)
-            .orElseThrow(() -> new ManagerException(ManagerErrorCode.WORKING_HOUR_NOT_FOUND));
-
-        if (!workingHour.getManager().getId().equals(managerId)) {
-            throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
-        }
-
-        workingHourRepository.delete(workingHour);
-
-        return new ManagerWorkingHourDeleteResponse();
     }
 }

@@ -28,7 +28,7 @@ public class Manager{
     private String career;
     private String comment;
     private String workingRegion;
-    private boolean gender; // man: false, woman: true
+    private String gender; // 남성 or 여성
     private boolean isRegistered = false;
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)

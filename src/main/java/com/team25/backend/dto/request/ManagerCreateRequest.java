@@ -6,6 +6,6 @@ public record ManagerCreateRequest(
     String career,
     String comment,
     String certificateImage,
-    boolean gender
+    String gender
 ) {
 }

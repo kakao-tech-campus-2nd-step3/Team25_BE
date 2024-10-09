@@ -50,4 +50,11 @@ public class Accompany {
     @Column(name = "detail")
     private String detail;
 
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+        if (reservation != null) {
+            reservation.getAccompany().add(this);
+        }
+    }
+
 }

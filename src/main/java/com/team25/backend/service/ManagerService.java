@@ -139,28 +139,30 @@ public class ManagerService {
 
         validateWorkingHourRequest(request);
 
-        WorkingHour workingHour = WorkingHour.builder()
-            .manager(manager)
-            .monStartTime(request.monStartTime())
-            .monEndTime(request.monEndTime())
-            .tueStartTime(request.tueStartTime())
-            .tueEndTime(request.tueEndTime())
-            .wedStartTime(request.wedStartTime())
-            .wedEndTime(request.wedEndTime())
-            .thuStartTime(request.thuStartTime())
-            .thuEndTime(request.thuEndTime())
-            .friStartTime(request.friStartTime())
-            .friEndTime(request.friEndTime())
-            .satStartTime(request.satStartTime())
-            .satEndTime(request.satEndTime())
-            .sunStartTime(request.sunStartTime())
-            .sunEndTime(request.sunEndTime())
-            .build();
+        WorkingHour workingHour = workingHourRepository.findByManagerId(managerId)
+            .orElse(new WorkingHour());
+
+        workingHour.setManager(manager);
+        workingHour.setMonStartTime(request.monStartTime());
+        workingHour.setMonEndTime(request.monEndTime());
+        workingHour.setTueStartTime(request.tueStartTime());
+        workingHour.setTueEndTime(request.tueEndTime());
+        workingHour.setWedStartTime(request.wedStartTime());
+        workingHour.setWedEndTime(request.wedEndTime());
+        workingHour.setThuStartTime(request.thuStartTime());
+        workingHour.setThuEndTime(request.thuEndTime());
+        workingHour.setFriStartTime(request.friStartTime());
+        workingHour.setFriEndTime(request.friEndTime());
+        workingHour.setSatStartTime(request.satStartTime());
+        workingHour.setSatEndTime(request.satEndTime());
+        workingHour.setSunStartTime(request.sunStartTime());
+        workingHour.setSunEndTime(request.sunEndTime());
 
         workingHourRepository.save(workingHour);
 
         return new ManagerWorkingHourCreateResponse();
     }
+
 
     private void validateWorkingHourRequest(ManagerWorkingHourCreateRequest request) {
         validateWorkingHour(request.monStartTime(), request.monEndTime());

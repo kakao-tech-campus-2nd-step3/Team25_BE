@@ -12,10 +12,10 @@ import com.team25.backend.enumdomain.ReservationStatus;
 import com.team25.backend.repository.ManagerRepository;
 import com.team25.backend.repository.ReservationRepository;
 import com.team25.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -79,11 +79,11 @@ public class ReservationService {
     public ReservationResponse createReservation(ReservationRequest reservationRequest, User user) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            LocalDateTime reservationDateTime = LocalDateTime.parse(
-                reservationRequest.reservationDateTime(), formatter);
+            LocalDateTime reservationDateTime =
+                LocalDateTime.parse(reservationRequest.reservationDateTime(), formatter);
             Manager manager = managerRepository.findById(reservationRequest.managerId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 매니저를 찾을 수 없습니다."));
-            Patient patient = patientService.addPatient(reservationRequest.patientRequest());
+            Patient patient = patientService.addPatient(reservationRequest.patient());
             Reservation reservation = Reservation.builder()
                 .departureLocation(reservationRequest.departureLocation())
                 .arrivalLocation(reservationRequest.arrivalLocation())
@@ -107,21 +107,23 @@ public class ReservationService {
                 reservation.getTransportation(),
                 reservation.getPrice());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("보호자 전화번호를 반드시 입력해야 합니다.");
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
     // 예약 취소
-    public ReservationResponse cancelReservation(User user, CancelRequest cancelRequest) {
+    @Transactional
+    public ReservationResponse cancelReservation(User user, CancelRequest cancelRequest, Long reservationId ) {
         // 해당 reservationDTO를 통해 특정 예약을 어떻게 하면 잡아낼 수 있는가?
         // checkDetailIsNull(cancelDto); // cancelDto에 상세 사유 없으면 예외 처리
-        Reservation canceledReservation = user.getReservations().getLast();
+        Reservation canceledReservation = user.getReservations().stream()
+            .filter(x -> x.getId().equals(reservationId)).findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("없는 예약 번호입니다"));
         if (canceledReservation.getReservationStatus() == ReservationStatus.CANCEL) {
             throw new IllegalArgumentException("이미 취소된 예약입니다");
         }
-        CancelReason cancelReason = Arrays.stream(CancelReason.values()) // 해당 취소 이유를 Enum 타입에서 선별
-            .filter(reason -> reason.toString().equals(cancelRequest.cancelReason())).findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 취소 타입입니다."));
+        CancelReason cancelReason = cancelRequest.cancelReason();
+
         addCancelReasonAndDetail(canceledReservation, cancelReason,
             cancelRequest.cancelDetail()); // 예약에 취소 사유와 상세 정보 추가
         reservationRepository.save(canceledReservation);
@@ -137,6 +139,7 @@ public class ReservationService {
         CancelReason cancelReason, String cancelDetail) {
         canceledReservation.setCancelReason(cancelReason);
         canceledReservation.setCancelDetail(cancelDetail);
+        canceledReservation.setReservationStatus(ReservationStatus.CANCEL);
     }
 
     private static void checkDetailIsNull(CancelRequest cancelRequest) {

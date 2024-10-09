@@ -28,6 +28,8 @@ public class Manager{
     private String career;
     private String comment;
     private String workingRegion;
+    private boolean gender; // man: false, woman: true
+    private boolean isRegistered = false;
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Certificate> certificates = new ArrayList<>();

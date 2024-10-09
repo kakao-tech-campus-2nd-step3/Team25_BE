@@ -5,6 +5,7 @@ public record ManagerCreateRequest(
     String profileImage,
     String career,
     String comment,
-    String certificateImage
+    String certificateImage,
+    boolean gender
 ) {
 }

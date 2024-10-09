@@ -6,7 +6,6 @@ import com.team25.backend.entity.Manager;
 import com.team25.backend.entity.Certificate;
 import com.team25.backend.entity.User;
 import com.team25.backend.entity.WorkingHour;
-import com.team25.backend.enumdomain.Day;
 import com.team25.backend.exception.ManagerException;
 import com.team25.backend.exception.ManagerErrorCode;
 import com.team25.backend.repository.ManagerRepository;
@@ -36,13 +35,35 @@ public class ManagerService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = LocalDate.parse(date, formatter);
-        Day day = Day.fromEnglishName(localDate.getDayOfWeek().toString());
+        String dayOfWeek = localDate.getDayOfWeek().toString().toLowerCase(); // 예: "monday"
 
-        List<Manager> managers = managerRepository.findByWorkingHoursDayOfWeekAndWorkingRegion(day, region);
+        List<Manager> managers = managerRepository.findByWorkingRegion(region).stream()
+            .filter(manager -> hasWorkingHoursOnDay(manager.getWorkingHour(), dayOfWeek))
+            .toList();
 
         return managers.stream()
             .map(ManagerByDateAndRegionResponse::fromEntity)
             .collect(Collectors.toList());
+    }
+
+    private boolean hasWorkingHoursOnDay(WorkingHour workingHour, String dayOfWeek) {
+        return switch (dayOfWeek) {
+            case "monday" ->
+                !("00:00".equals(workingHour.getMonStartTime()) && "00:00".equals(workingHour.getMonEndTime()));
+            case "tuesday" ->
+                !("00:00".equals(workingHour.getTueStartTime()) && "00:00".equals(workingHour.getTueEndTime()));
+            case "wednesday" ->
+                !("00:00".equals(workingHour.getWedStartTime()) && "00:00".equals(workingHour.getWedEndTime()));
+            case "thursday" ->
+                !("00:00".equals(workingHour.getThuStartTime()) && "00:00".equals(workingHour.getThuEndTime()));
+            case "friday" ->
+                !("00:00".equals(workingHour.getFriStartTime()) && "00:00".equals(workingHour.getFriEndTime()));
+            case "saturday" ->
+                !("00:00".equals(workingHour.getSatStartTime()) && "00:00".equals(workingHour.getSatEndTime()));
+            case "sunday" ->
+                !("00:00".equals(workingHour.getSunStartTime()) && "00:00".equals(workingHour.getSunEndTime()));
+            default -> false;
+        };
     }
 
     private void validateDate(String date) {

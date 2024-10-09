@@ -3,6 +3,8 @@ package com.team25.backend.entity;
 import com.team25.backend.enumdomain.PatientGender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,6 +38,7 @@ public class Patient {
     private String phoneNumber;
 
     @Column(name = "patient_gender", nullable = false)
+    @Enumerated(EnumType.STRING)
     private PatientGender gender;
 
     @Column(name = "patient_birth", nullable = false)

@@ -209,30 +209,43 @@ public class ManagerService {
         }
     }
 
-    public ManagerWorkingHourUpdateResponse updateWorkingHour(Long managerId, Long workingHoursId, ManagerWorkingHourUpdateRequest request) {
+    public ManagerWorkingHourUpdateResponse updateWorkingHour(Long managerId, ManagerWorkingHourUpdateRequest request) {
         Manager manager = managerRepository.findById(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.MANAGER_NOT_FOUND));
 
-        WorkingHour workingHour = workingHourRepository.findById(workingHoursId)
+        WorkingHour workingHour = workingHourRepository.findByManagerId(managerId)
             .orElseThrow(() -> new ManagerException(ManagerErrorCode.WORKING_HOUR_NOT_FOUND));
-
-        if (!workingHour.getManager().getId().equals(managerId)) {
-            throw new ManagerException(ManagerErrorCode.INVALID_INPUT_VALUE);
-        }
 
         validateWorkingHourRequest(request);
 
-        workingHour.setDayOfWeek(Day.fromKoreanName(request.day()));
-        workingHour.setStartTime(request.startTime());
-        workingHour.setEndTime(request.endTime());
+        workingHour.setMonStartTime(request.monStartTime());
+        workingHour.setMonEndTime(request.monEndTime());
+        workingHour.setTueStartTime(request.tueStartTime());
+        workingHour.setTueEndTime(request.tueEndTime());
+        workingHour.setWedStartTime(request.wedStartTime());
+        workingHour.setWedEndTime(request.wedEndTime());
+        workingHour.setThuStartTime(request.thuStartTime());
+        workingHour.setThuEndTime(request.thuEndTime());
+        workingHour.setFriStartTime(request.friStartTime());
+        workingHour.setFriEndTime(request.friEndTime());
+        workingHour.setSatStartTime(request.satStartTime());
+        workingHour.setSatEndTime(request.satEndTime());
+        workingHour.setSunStartTime(request.sunStartTime());
+        workingHour.setSunEndTime(request.sunEndTime());
+
         workingHourRepository.save(workingHour);
 
         return ManagerWorkingHourUpdateResponse.fromEntity(workingHour);
     }
 
-
     private void validateWorkingHourRequest(ManagerWorkingHourUpdateRequest request) {
-        validateWorkingHour(request.startTime(), request.endTime(), request.day());
+        validateWorkingHour(request.monStartTime(), request.monEndTime());
+        validateWorkingHour(request.tueStartTime(), request.tueEndTime());
+        validateWorkingHour(request.wedStartTime(), request.wedEndTime());
+        validateWorkingHour(request.thuStartTime(), request.thuEndTime());
+        validateWorkingHour(request.friStartTime(), request.friEndTime());
+        validateWorkingHour(request.satStartTime(), request.satEndTime());
+        validateWorkingHour(request.sunStartTime(), request.sunEndTime());
     }
 
     public ManagerWorkingHourDeleteResponse deleteWorkingHour(Long managerId, Long workingHoursId) {

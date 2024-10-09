@@ -74,19 +74,21 @@ public class ManagerService {
         validateCreateRequest(request);
 
         Manager manager = Manager.builder()
-                .user(user)
-                .managerName(request.name())
-                .profileImage(request.profileImage())
-                .career(request.career())
-                .comment(request.comment())
-                .build();
+            .user(user)
+            .managerName(request.name())
+            .profileImage(request.profileImage())
+            .career(request.career())
+            .comment(request.comment())
+            .gender(request.gender())
+            .isRegistered(false)
+            .build();
 
         managerRepository.save(manager);
 
         Certificate certificate = Certificate.builder()
-                .certificateImage(request.certificateImage())
-                .manager(manager)
-                .build();
+            .certificateImage(request.certificateImage())
+            .manager(manager)
+            .build();
 
         certificateRepository.save(certificate);
 

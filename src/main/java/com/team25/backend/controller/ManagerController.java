@@ -125,13 +125,12 @@ public class ManagerController {
         );
     }
 
-    @PatchMapping("/api/manager/time/{manager_id}/{working_hours_id}")
+    @PutMapping("/api/manager/time/{manager_id}")
     public ResponseEntity<ApiResponse<ManagerWorkingHourUpdateResponse>> updateWorkingHour(
         @PathVariable("manager_id") Long managerId,
-        @PathVariable("working_hours_id") Long workingHoursId,
         @RequestBody ManagerWorkingHourUpdateRequest request) {
 
-        ManagerWorkingHourUpdateResponse response = managerService.updateWorkingHour(managerId, workingHoursId, request);
+        ManagerWorkingHourUpdateResponse response = managerService.updateWorkingHour(managerId, request);
 
         return ResponseEntity.ok(
             ApiResponse.<ManagerWorkingHourUpdateResponse>builder()

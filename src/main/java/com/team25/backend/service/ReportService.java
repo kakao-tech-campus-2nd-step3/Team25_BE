@@ -4,6 +4,8 @@ import com.team25.backend.dto.request.ReportRequest;
 import com.team25.backend.dto.response.ReportResponse;
 import com.team25.backend.entity.Report;
 import com.team25.backend.entity.Reservation;
+import com.team25.backend.exception.ReservationErrorCode;
+import com.team25.backend.exception.ReservationException;
 import com.team25.backend.repository.ReportRepository;
 import com.team25.backend.repository.ReservationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +41,7 @@ public class ReportService {
     @Transactional
     public ReportResponse createReport(Long reservationId, ReportRequest reportRequest) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+            .orElseThrow(() -> new ReservationException(ReservationErrorCode.USER_NOT_FOUND));
 
         Report report = Report.builder()
             .reservation(reservation)  // 연관관계 설정
@@ -51,8 +53,6 @@ public class ReportService {
 
         report = reportRepository.save(report);  // Report 엔티티 저장
         reservation.addReport(report);  // 양방향 관계 설정
-
-        log.info("Created report for reservation ID: {}", reservationId);
 
         return new ReportResponse(report.getDoctorSummary(), report.getFrequency(),
             report.getMealTime().toString(), report.getTimeOfDay());

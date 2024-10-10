@@ -4,6 +4,8 @@ import com.team25.backend.dto.request.AccompanyRequest;
 import com.team25.backend.dto.response.AccompanyResponse;
 import com.team25.backend.entity.Accompany;
 import com.team25.backend.entity.Reservation;
+import com.team25.backend.exception.ReservationErrorCode;
+import com.team25.backend.exception.ReservationException;
 import com.team25.backend.repository.AccompanyRepository;
 import com.team25.backend.repository.ReservationRepository;
 import jakarta.transaction.Transactional;
@@ -19,15 +21,17 @@ import org.springframework.stereotype.Service;
 public class AccompanyService {
 
     private final ReservationRepository reservationRepository;
+    private final AccompanyRepository accompanyRepository;
 
     public AccompanyService(AccompanyRepository accompanyRepository,
         ReservationRepository reservationRepository) {
         this.reservationRepository = reservationRepository;
+        this.accompanyRepository = accompanyRepository;
     }
 
     public List<AccompanyResponse> getTrackingAccompanies(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+            .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
         List<Accompany> accompanies = reservation.getAccompany();
         log.info("Found {} accompanies for reservation ID: {}", accompanies.size(), reservationId);
 
@@ -48,7 +52,7 @@ public class AccompanyService {
         LocalDateTime accompanyDateTime = LocalDateTime.parse(accompanyRequest.statusDate(), formatter);
 
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+            .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
         Accompany track = Accompany.builder()
             .accompanyStatus(accompanyRequest.status())
@@ -58,10 +62,9 @@ public class AccompanyService {
             .detail(accompanyRequest.statusDescribe())
             .build();
 
+        accompanyRepository.save(track);
         reservation.addAccompany(track);
         reservationRepository.save(reservation);
-
-        log.info("Added new accompany: {}", track);
 
         return new AccompanyResponse(
             track.getAccompanyStatus(),

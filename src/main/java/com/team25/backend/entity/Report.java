@@ -1,8 +1,11 @@
 package com.team25.backend.entity;
 
-import com.team25.backend.enumdomain.MealTime;
+import com.team25.backend.enumdomain.MedicineTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,12 +35,9 @@ public class Report {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id")
     private Reservation reservation;
-
-    @OneToMany(mappedBy = "report")
-    private List<TimeOfDays> timeOfDays = new ArrayList<>();
 
     @Column(name = "doctor_summary")
     private String doctorSummary;
@@ -46,7 +46,8 @@ public class Report {
     private int frequency;
 
     @Column(name = "meal_time")
-    private MealTime mealTime;
+    @Enumerated(EnumType.STRING)
+    private MedicineTime mealTime;
 
     @Column(name = "time_of_day")
     private String timeOfDay;

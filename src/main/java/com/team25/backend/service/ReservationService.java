@@ -1,5 +1,13 @@
 package com.team25.backend.service;
 
+import static com.team25.backend.exception.ReservationErrorCode.MANAGER_NOT_FOUND;
+import static com.team25.backend.exception.ReservationErrorCode.MANAGER_REQUIRED;
+import static com.team25.backend.exception.ReservationErrorCode.RESERVATION_ALREADY_CANCELED;
+import static com.team25.backend.exception.ReservationErrorCode.RESERVATION_NOT_BELONG_TO_USER;
+import static com.team25.backend.exception.ReservationErrorCode.RESERVATION_NOT_FOUND;
+import static com.team25.backend.exception.ReservationErrorCode.USER_HAS_NO_RESERVATIONS;
+import static com.team25.backend.exception.ReservationErrorCode.USER_NOT_FOUND;
+
 import com.team25.backend.dto.request.CancelRequest;
 import com.team25.backend.dto.request.ReservationRequest;
 import com.team25.backend.dto.response.ReservationResponse;
@@ -9,9 +17,9 @@ import com.team25.backend.entity.Reservation;
 import com.team25.backend.entity.User;
 import com.team25.backend.enumdomain.CancelReason;
 import com.team25.backend.enumdomain.ReservationStatus;
+import com.team25.backend.exception.ReservationException;
 import com.team25.backend.repository.ManagerRepository;
 import com.team25.backend.repository.ReservationRepository;
-import com.team25.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,8 +40,7 @@ public class ReservationService {
 
     public ReservationService(ReservationRepository reservationRepository,
         ManagerRepository managerRepository
-        , UserRepository userRepository,
-        PatientService patientService) {
+        , PatientService patientService) {
         this.reservationRepository = reservationRepository;
         this.managerRepository = managerRepository;
         this.patientService = patientService;
@@ -41,7 +48,8 @@ public class ReservationService {
 
     // 예약 전체 조회
     public List<ReservationResponse> getAllReservations(User user) {
-        List<Reservation> reservations = user.getReservations();
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
+            .orElseThrow(() -> new ReservationException(USER_NOT_FOUND));
         List<ReservationResponse> responseList = new ArrayList<>();
         for (Reservation reservation : reservations) {
             responseList.add(
@@ -61,9 +69,11 @@ public class ReservationService {
     // 단일 예약 조회
     public ReservationResponse getReservationById(User user, Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new IllegalArgumentException("없는 예약 번호입니다."));
-        if (!user.getReservations().contains(reservation)) {
-            throw new IllegalArgumentException("해당 회원의 예약 번호가 아닙니다.");
+            .orElseThrow(() -> new ReservationException(RESERVATION_NOT_FOUND));
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
+            .orElseThrow(() -> new ReservationException(USER_HAS_NO_RESERVATIONS));
+        if (!reservations.contains(reservation)) {
+            throw new ReservationException(RESERVATION_NOT_BELONG_TO_USER);
         }
         return new ReservationResponse(
             reservation.getDepartureLocation(),
@@ -81,8 +91,11 @@ public class ReservationService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime reservationDateTime =
                 LocalDateTime.parse(reservationRequest.reservationDateTime(), formatter);
+            if (reservationRequest.managerId() == null) {
+                throw new ReservationException(MANAGER_REQUIRED);
+            }
             Manager manager = managerRepository.findById(reservationRequest.managerId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 매니저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ReservationException(MANAGER_NOT_FOUND));
             Patient patient = patientService.addPatient(reservationRequest.patient());
             Reservation reservation = Reservation.builder()
                 .departureLocation(reservationRequest.departureLocation())
@@ -113,14 +126,15 @@ public class ReservationService {
 
     // 예약 취소
     @Transactional
-    public ReservationResponse cancelReservation(User user, CancelRequest cancelRequest, Long reservationId ) {
-        // 해당 reservationDTO를 통해 특정 예약을 어떻게 하면 잡아낼 수 있는가?
-        // checkDetailIsNull(cancelDto); // cancelDto에 상세 사유 없으면 예외 처리
-        Reservation canceledReservation = user.getReservations().stream()
+    public ReservationResponse cancelReservation(User user, CancelRequest cancelRequest,
+        Long reservationId) {
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
+            .orElseThrow(() -> new ReservationException(USER_NOT_FOUND));
+        Reservation canceledReservation = reservations.stream()
             .filter(x -> x.getId().equals(reservationId)).findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("없는 예약 번호입니다"));
+            .orElseThrow(() -> new ReservationException(RESERVATION_NOT_FOUND));
         if (canceledReservation.getReservationStatus() == ReservationStatus.CANCEL) {
-            throw new IllegalArgumentException("이미 취소된 예약입니다");
+            throw new ReservationException(RESERVATION_ALREADY_CANCELED);
         }
         CancelReason cancelReason = cancelRequest.cancelReason();
 

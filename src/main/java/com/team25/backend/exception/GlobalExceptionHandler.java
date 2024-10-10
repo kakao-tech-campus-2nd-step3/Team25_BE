@@ -35,6 +35,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ReservationException.class)
+    public ResponseEntity<ApiResponse<String>> handleReservationException(ReservationException ex) {
+        return new ResponseEntity<>(
+            ApiResponse.<String>builder()
+                .status(false)
+                .message(ex.getErrorCode().getMessage())
+                .data(null)
+                .build(),
+            ex.getErrorCode().getHttpStatus()
+        );
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse<String>> handleUserNotFoundException(UserNotFoundException ex) {
         ApiResponse<String>apiResponse = new ApiResponse<>(false, ex.getMessage(), null);

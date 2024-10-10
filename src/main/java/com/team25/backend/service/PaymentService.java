@@ -9,9 +9,11 @@ import com.team25.backend.dto.response.PaymentResponse;
 import com.team25.backend.dto.response.ExpireBillingKeyResponse;
 import com.team25.backend.entity.BillingKey;
 import com.team25.backend.entity.Payment;
+import com.team25.backend.entity.Reservation;
 import com.team25.backend.entity.User;
 import com.team25.backend.repository.BillingKeyRepository;
 import com.team25.backend.repository.PaymentRepository;
+import com.team25.backend.repository.ReservationRepository;
 import com.team25.backend.repository.UserRepository;
 import com.team25.backend.util.EncryptionUtil;
 import org.springframework.http.HttpHeaders;
@@ -29,15 +31,17 @@ public class PaymentService {
     private final BillingKeyRepository billingKeyRepository;
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
+    private final ReservationRepository reservationRepository;
 
     private static final String CLIENT_KEY = System.getenv("NICEPAY_CLIENT_KEY");
     private static final String SECRET_KEY = System.getenv("NICEPAY_SECRET_KEY");
 
-    public PaymentService(RestClient restClient, BillingKeyRepository billingKeyRepository, UserRepository userRepository, PaymentRepository paymentRepository) {
+    public PaymentService(RestClient restClient, BillingKeyRepository billingKeyRepository, UserRepository userRepository, PaymentRepository paymentRepository, ReservationRepository reservationRepository) {
         this.restClient = restClient;
         this.billingKeyRepository = billingKeyRepository;
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     // Authorization 헤더 생성
@@ -58,7 +62,6 @@ public class PaymentService {
         }
         return body;
     }
-
 
     // 빌링키 존재 여부 확인
     public boolean billingKeyExists(String userUuid) {
@@ -122,6 +125,8 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Billing key not found"));
         User user = userRepository.findByUuid(userUuid)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        Reservation reservation = reservationRepository.findById(requestDto.reservationId())
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
         String bid = billingKey.getBid();
         String orderId = generateOrderId();

@@ -30,10 +30,8 @@ public class AccompanyService {
     }
 
     public List<AccompanyResponse> getTrackingAccompanies(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
+        List<Accompany> accompanies = accompanyRepository.findByReservation_id(reservationId)
             .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
-        List<Accompany> accompanies = reservation.getAccompany();
-        log.info("Found {} accompanies for reservation ID: {}", accompanies.size(), reservationId);
 
         return accompanies.stream()
             .map(accompany -> new AccompanyResponse(

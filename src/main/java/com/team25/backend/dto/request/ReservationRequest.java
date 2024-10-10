@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 public record ReservationRequest(
-    // @NotNull @Positive Long userId,
     @NotNull @Positive Long managerId,
     @ValidDepartureLocation String departureLocation,
     @ValidArrivalLocation String arrivalLocation,

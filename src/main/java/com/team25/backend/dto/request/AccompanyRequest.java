@@ -13,7 +13,7 @@ public record AccompanyRequest(
     @NotNull(message = "진행 상태틑 0자 이상이어야 합니다.") AccompanyStatus status,
     @PositiveOrZero @Range(message = "위도는 0이상 90 이하의 값입니다.", min = 0, max = 90) Double latitude,
     @PositiveOrZero @Range(message = "경도는 0이상 360이하의 값입니다.", min = 0, max = 360) Double longitude,
-    @NotNull(message = "시간은 필수 입력 값입니다.") @Past LocalDateTime statusDate,
+    @NotNull(message = "시간은 필수 입력 값입니다.") String statusDate,
     @NotBlank(message = "리포트 상세 사항은 필수 사항입니다.") String statusDescribe) implements
     Serializable {
 }

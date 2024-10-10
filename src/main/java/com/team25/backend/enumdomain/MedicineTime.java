@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
-public enum TimeInterval {
+public enum MedicineTime {
     @JsonProperty("식후 30분")
     AFTER_MEAL(null),
     @JsonProperty("식전 30분")

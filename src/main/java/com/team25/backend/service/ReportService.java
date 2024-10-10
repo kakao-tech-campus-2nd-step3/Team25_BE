@@ -8,6 +8,7 @@ import com.team25.backend.repository.ReportRepository;
 import com.team25.backend.repository.ReservationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service
@@ -25,30 +26,35 @@ public class ReportService {
     }
 
     // 리포트 조회
+    @Transactional(readOnly = true)
     public ReportResponse getReport(Long reservationId) {
-        Reservation completedReservation = reservationRepository.findById(reservationId)
-            .orElseThrow(IllegalArgumentException::new);
-        Report report = reportRepository.findByReservation(
-            completedReservation).orElseThrow(IllegalArgumentException::new);
-        return new ReportResponse(report.getDoctorSummary(),
-            report.getFrequency(), report.getMealTime(),
+        Report report = reportRepository.findByReservation_Id(reservationId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 예약에 대한 리포트가 없습니다."));
+        return new ReportResponse(
+            report.getDoctorSummary(), report.getFrequency(), report.getMealTime().toString(),
             report.getTimeOfDay());
     }
 
     // 환자 결과 리포트 생성
+    @Transactional
     public ReportResponse createReport(Long reservationId, ReportRequest reportRequest) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(IllegalArgumentException::new);
-        Report report = Report.builder().
-            doctorSummary(reportRequest.doctorSummary())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+
+        Report report = Report.builder()
+            .reservation(reservation)  // 연관관계 설정
+            .doctorSummary(reportRequest.doctorSummary())
             .frequency(reportRequest.frequency())
-            .mealTime(reportRequest.mealTime())
+            .mealTime(reportRequest.medicineTime())
             .timeOfDay(reportRequest.timeOfDays())
             .build();
-        reservation.getReports().add(report);
-        reservationRepository.save(reservation);
-        return new ReportResponse(report.getDoctorSummary(), report.getFrequency(),
-            report.getMealTime(), report.getTimeOfDay());
-    }
 
+        report = reportRepository.save(report);  // Report 엔티티 저장
+        reservation.addReport(report);  // 양방향 관계 설정
+
+        log.info("Created report for reservation ID: {}", reservationId);
+
+        return new ReportResponse(report.getDoctorSummary(), report.getFrequency(),
+            report.getMealTime().toString(), report.getTimeOfDay());
+    }
 }

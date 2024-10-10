@@ -6,54 +6,68 @@ import com.team25.backend.entity.Accompany;
 import com.team25.backend.entity.Reservation;
 import com.team25.backend.repository.AccompanyRepository;
 import com.team25.backend.repository.ReservationRepository;
-import java.util.ArrayList;
+import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
+@Slf4j
 public class AccompanyService {
 
-    private final AccompanyRepository accompanyRepository;
     private final ReservationRepository reservationRepository;
 
     public AccompanyService(AccompanyRepository accompanyRepository,
         ReservationRepository reservationRepository) {
-        this.accompanyRepository = accompanyRepository;
         this.reservationRepository = reservationRepository;
     }
 
-    // 실시간 동행 정보 조회
     public List<AccompanyResponse> getTrackingAccompanies(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
         List<Accompany> accompanies = reservation.getAccompany();
-        List<AccompanyResponse> accompaniesResponse = new ArrayList<>();
-        for (Accompany accompany : accompanies) {
-            accompaniesResponse.add(new AccompanyResponse(
-                accompany.getAccompanyStatus(), accompany.getLatitude(), accompany.getLongitude(),
-                accompany.getTime(), accompany.getDetail()
-            ));
-        }
-        return accompaniesResponse;
+        log.info("Found {} accompanies for reservation ID: {}", accompanies.size(), reservationId);
+
+        return accompanies.stream()
+            .map(accompany -> new AccompanyResponse(
+                accompany.getAccompanyStatus(),
+                accompany.getLatitude(),
+                accompany.getLongitude(),
+                accompany.getTime(),
+                accompany.getDetail()
+            ))
+            .peek(response -> log.info("Accompany details: {}", response))
+            .toList();
     }
 
-    // 실시간 동행 정보 생성
-    public AccompanyResponse addTrackingAccompany(Long reservationId,
-        AccompanyRequest accompanyRequest) {
-        Accompany track = Accompany.builder().accompanyStatus(accompanyRequest.status())
-            .time(accompanyRequest.statusDate()).latitude(accompanyRequest.latitude())
-            .longitude(accompanyRequest.longitude()).longitude(accompanyRequest.longitude())
-            .detail(accompanyRequest.statusDescribe()).build();
+    public AccompanyResponse addTrackingAccompany(Long reservationId, AccompanyRequest accompanyRequest) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime accompanyDateTime = LocalDateTime.parse(accompanyRequest.statusDate(), formatter);
+
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(()->new IllegalArgumentException("존재하지 않는 예약입니다."));
-        reservation.getAccompany().add(track);
-        reservationRepository.save(reservation);
-        accompanyRepository.save(track);
-        return new AccompanyResponse(
-            accompanyRequest.status(),
-            accompanyRequest.latitude(), accompanyRequest.longitude(),
-            accompanyRequest.statusDate(),
-            accompanyRequest.statusDescribe());
-    }
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
 
+        Accompany track = Accompany.builder()
+            .accompanyStatus(accompanyRequest.status())
+            .time(accompanyDateTime)
+            .latitude(accompanyRequest.latitude())
+            .longitude(accompanyRequest.longitude())
+            .detail(accompanyRequest.statusDescribe())
+            .build();
+
+        reservation.addAccompany(track);
+        reservationRepository.save(reservation);
+
+        log.info("Added new accompany: {}", track);
+
+        return new AccompanyResponse(
+            track.getAccompanyStatus(),
+            track.getLatitude(),
+            track.getLongitude(),
+            track.getTime(),
+            track.getDetail());
+    }
 }

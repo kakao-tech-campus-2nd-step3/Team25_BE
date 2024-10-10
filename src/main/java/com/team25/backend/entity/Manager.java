@@ -1,11 +1,9 @@
 package com.team25.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -30,10 +28,12 @@ public class Manager{
     private String career;
     private String comment;
     private String workingRegion;
+    private String gender; // 남성 or 여성
+    private boolean isRegistered = false;
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Certificate> certificates = new ArrayList<>();
 
-    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WorkingHour> workingHours = new ArrayList<>();
+    @OneToOne(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
+    private WorkingHour workingHour;
 }

@@ -32,8 +32,7 @@ public class ReservationService {
 
     public ReservationService(ReservationRepository reservationRepository,
         ManagerRepository managerRepository
-        , UserRepository userRepository,
-        PatientService patientService) {
+        , PatientService patientService) {
         this.reservationRepository = reservationRepository;
         this.managerRepository = managerRepository;
         this.patientService = patientService;
@@ -41,7 +40,8 @@ public class ReservationService {
 
     // 예약 전체 조회
     public List<ReservationResponse> getAllReservations(User user) {
-        List<Reservation> reservations = user.getReservations();
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         List<ReservationResponse> responseList = new ArrayList<>();
         for (Reservation reservation : reservations) {
             responseList.add(
@@ -62,7 +62,7 @@ public class ReservationService {
     public ReservationResponse getReservationById(User user, Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
             .orElseThrow(() -> new IllegalArgumentException("없는 예약 번호입니다."));
-        if (!user.getReservations().contains(reservation)) {
+        if (!reservationRepository.findByUser_Uuid(user.getUuid()).get().contains(reservation)){
             throw new IllegalArgumentException("해당 회원의 예약 번호가 아닙니다.");
         }
         return new ReservationResponse(
@@ -116,9 +116,11 @@ public class ReservationService {
     public ReservationResponse cancelReservation(User user, CancelRequest cancelRequest, Long reservationId ) {
         // 해당 reservationDTO를 통해 특정 예약을 어떻게 하면 잡아낼 수 있는가?
         // checkDetailIsNull(cancelDto); // cancelDto에 상세 사유 없으면 예외 처리
-        Reservation canceledReservation = user.getReservations().stream()
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Reservation canceledReservation = reservations.stream()
             .filter(x -> x.getId().equals(reservationId)).findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("없는 예약 번호입니다"));
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 예약 번호입니다"));
         if (canceledReservation.getReservationStatus() == ReservationStatus.CANCEL) {
             throw new IllegalArgumentException("이미 취소된 예약입니다");
         }

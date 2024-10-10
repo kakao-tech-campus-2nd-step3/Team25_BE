@@ -5,6 +5,7 @@ import com.team25.backend.dto.request.PaymentCancelRequest;
 import com.team25.backend.dto.request.PaymentRequest;
 import com.team25.backend.dto.request.ExpireBillingKeyRequest;
 import com.team25.backend.dto.response.BillingKeyResponse;
+import com.team25.backend.dto.response.PaymentInfoResponse;
 import com.team25.backend.dto.response.PaymentResponse;
 import com.team25.backend.dto.response.ExpireBillingKeyResponse;
 import com.team25.backend.entity.BillingKey;
@@ -23,6 +24,7 @@ import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -61,6 +63,23 @@ public class PaymentService {
             body.put("signData", signData);
         }
         return body;
+    }
+
+    // Payment 엔티티를 PaymentInfoResponse로 변환
+    private PaymentInfoResponse convertToPaymentInfoResponse(Payment payment) {
+        return new PaymentInfoResponse(
+                payment.getStatus(),
+                payment.getOrderId(),
+                payment.getAmount(),
+                payment.getBalanceAmt(),
+                payment.getPaidAt(),
+                payment.getCancelledAt(),
+                payment.getGoodsName(),
+                payment.getPayMethod(),
+                payment.getCardAlias(),
+                payment.getTid(),
+                payment.getReceiptUrl()
+        );
     }
 
     // 빌링키 존재 여부 확인
@@ -166,7 +185,7 @@ public class PaymentService {
         if ("0000".equals(responseDto.resultCode())) {
             Payment payment = new Payment();
             payment.setUser(user);
-            // payment.setReservation(reservation); 예약 정보 추가 필요
+            payment.setReservation(reservation);
             payment.setStatus(responseDto.status());
             payment.setOrderId(responseDto.orderId());
             payment.setAmount(responseDto.amount());
@@ -271,6 +290,31 @@ public class PaymentService {
         billingKeyRepository.delete(billingKey);
 
         return responseDto;
+    }
+
+    // 단일 결제정보 조회
+    public PaymentInfoResponse getPaymentByOrderId(String orderId) {
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        return convertToPaymentInfoResponse(payment);
+    }
+
+    // 해당 유저의 결제정보 목록 조회
+    public List<PaymentInfoResponse> getPaymentsByUserUuid(String userUuid) {
+        User user = userRepository.findByUuid(userUuid)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Payment> payments = paymentRepository.findByUser(user);
+        return payments.stream()
+                .map(this::convertToPaymentInfoResponse)
+                .collect(Collectors.toList());
+    }
+
+    // 해당 예약의 결제정보 목록 조회
+    public List<PaymentInfoResponse> getPaymentsByReservationId(Long reservationId) {
+        List<Payment> payments = paymentRepository.findByReservationId(reservationId);
+        return payments.stream()
+                .map(this::convertToPaymentInfoResponse)
+                .collect(Collectors.toList());
     }
 
     // 유틸리티 메서드들

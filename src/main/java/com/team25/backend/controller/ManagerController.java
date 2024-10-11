@@ -125,34 +125,17 @@ public class ManagerController {
         );
     }
 
-    @PatchMapping("/api/manager/time/{manager_id}/{working_hours_id}")
+    @PutMapping("/api/manager/time/{manager_id}")
     public ResponseEntity<ApiResponse<ManagerWorkingHourUpdateResponse>> updateWorkingHour(
         @PathVariable("manager_id") Long managerId,
-        @PathVariable("working_hours_id") Long workingHoursId,
         @RequestBody ManagerWorkingHourUpdateRequest request) {
 
-        ManagerWorkingHourUpdateResponse response = managerService.updateWorkingHour(managerId, workingHoursId, request);
+        ManagerWorkingHourUpdateResponse response = managerService.updateWorkingHour(managerId, request);
 
         return ResponseEntity.ok(
             ApiResponse.<ManagerWorkingHourUpdateResponse>builder()
                 .status(true)
                 .message("근무 시간을 성공적으로 변경했습니다.")
-                .data(response)
-                .build()
-        );
-    }
-
-    @DeleteMapping("/api/manager/time/{manager_id}/{working_hours_id}")
-    public ResponseEntity<ApiResponse<ManagerWorkingHourDeleteResponse>> deleteWorkingHour(
-        @PathVariable("manager_id") Long managerId,
-        @PathVariable("working_hours_id") Long workingHoursId) {
-
-        ManagerWorkingHourDeleteResponse response = managerService.deleteWorkingHour(managerId, workingHoursId);
-
-        return ResponseEntity.ok(
-            ApiResponse.<ManagerWorkingHourDeleteResponse>builder()
-                .status(true)
-                .message("근무 시간을 성공적으로 삭제했습니다.")
                 .data(response)
                 .build()
         );

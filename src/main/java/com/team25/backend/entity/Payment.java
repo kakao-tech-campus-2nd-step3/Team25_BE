@@ -19,7 +19,7 @@ public class Payment {
     private User user;
 
     // 예약과의 연관 관계
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     private Reservation reservation;
 

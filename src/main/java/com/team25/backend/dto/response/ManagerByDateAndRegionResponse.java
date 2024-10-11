@@ -7,7 +7,8 @@ public record ManagerByDateAndRegionResponse(
     String name,
     String profileImage,
     String career,
-    String comment
+    String comment,
+    String gender
 ) {
     public static ManagerByDateAndRegionResponse fromEntity(Manager manager) {
         return new ManagerByDateAndRegionResponse(
@@ -15,7 +16,8 @@ public record ManagerByDateAndRegionResponse(
             manager.getManagerName(),
             manager.getProfileImage(),
             manager.getCareer(),
-            manager.getComment()
+            manager.getComment(),
+            manager.getGender()
         );
     }
 }

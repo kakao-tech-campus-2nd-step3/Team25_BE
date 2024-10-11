@@ -14,6 +14,7 @@ public class MyController {
     @ResponseBody
     public String myAPI(@LoginUser User user){
         log.info("uuid: "+user.getUuid());
+        log.info("role: "+user.getRole());
         return "my route";
     }
 }

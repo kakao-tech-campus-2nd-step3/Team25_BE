@@ -4,9 +4,11 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Arrays;
+import java.util.Base64;
 
 public class EncryptionUtil {
+
+    private static final String SECRET_KEY = System.getenv("BILLING_SECRET_KEY");
 
     // SignData 생성
     public static String generateSignData(String... params) throws Exception {
@@ -29,5 +31,30 @@ public class EncryptionUtil {
             sb.append(String.format("%02x", b));
         }
         return sb.toString();
+    }
+
+    public static String encrypt(String plainText) throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+
+        byte[] encrypted = cipher.doFinal(plainText.getBytes("UTF-8"));
+        String encryptedBase64 = Base64.getEncoder().encodeToString(encrypted);
+
+        return encryptedBase64;
+    }
+
+    public static String decrypt(String cipherText) throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+
+        byte[] decodedBytes = Base64.getDecoder().decode(cipherText);
+        byte[] decrypted = cipher.doFinal(decodedBytes);
+
+        String decryptedString = new String(decrypted, "UTF-8");
+        return decryptedString;
     }
 }

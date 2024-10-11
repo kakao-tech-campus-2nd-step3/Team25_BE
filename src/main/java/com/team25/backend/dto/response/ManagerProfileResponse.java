@@ -3,16 +3,14 @@ package com.team25.backend.dto.response;
 import com.team25.backend.entity.Manager;
 import com.team25.backend.entity.WorkingHour;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public record ManagerProfileResponse(
     String name,
     String profileImage,
     String career,
     String comment,
     String workingRegion,
-    List<WorkingHourResponse> workingHour
+    String gender,
+    WorkingHourResponse workingHour
 ) {
     public static ManagerProfileResponse fromEntity(Manager manager) {
         return new ManagerProfileResponse(
@@ -21,22 +19,29 @@ public record ManagerProfileResponse(
             manager.getCareer(),
             manager.getComment(),
             manager.getWorkingRegion(),
-            manager.getWorkingHours().stream()
-                .map(WorkingHourResponse::fromEntity)
-                .collect(Collectors.toList())
+            manager.getGender(),
+            WorkingHourResponse.fromEntity(manager.getWorkingHour())
         );
     }
 
     public record WorkingHourResponse(
-        String day,
-        String startTime,
-        String endTime
+        String monStartTime, String monEndTime,
+        String tueStartTime, String tueEndTime,
+        String wedStartTime, String wedEndTime,
+        String thuStartTime, String thuEndTime,
+        String friStartTime, String friEndTime,
+        String satStartTime, String satEndTime,
+        String sunStartTime, String sunEndTime
     ) {
         public static WorkingHourResponse fromEntity(WorkingHour workingHour) {
             return new WorkingHourResponse(
-                workingHour.getDayOfWeek().getKrName(),
-                workingHour.getStartTime(),
-                workingHour.getEndTime()
+                workingHour.getMonStartTime(), workingHour.getMonEndTime(),
+                workingHour.getTueStartTime(), workingHour.getTueEndTime(),
+                workingHour.getWedStartTime(), workingHour.getWedEndTime(),
+                workingHour.getThuStartTime(), workingHour.getThuEndTime(),
+                workingHour.getFriStartTime(), workingHour.getFriEndTime(),
+                workingHour.getSatStartTime(), workingHour.getSatEndTime(),
+                workingHour.getSunStartTime(), workingHour.getSunEndTime()
             );
         }
     }

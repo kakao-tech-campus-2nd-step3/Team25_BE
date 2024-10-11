@@ -5,15 +5,14 @@ import com.team25.backend.dto.request.BillingKeyRequest;
 import com.team25.backend.dto.request.PaymentCancelRequest;
 import com.team25.backend.dto.request.PaymentRequest;
 import com.team25.backend.dto.request.ExpireBillingKeyRequest;
-import com.team25.backend.dto.response.ApiResponse;
-import com.team25.backend.dto.response.BillingKeyResponse;
-import com.team25.backend.dto.response.PaymentResponse;
-import com.team25.backend.dto.response.ExpireBillingKeyResponse;
+import com.team25.backend.dto.response.*;
 import com.team25.backend.entity.User;
 import com.team25.backend.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -72,6 +71,34 @@ public class PaymentController {
         boolean exists = paymentService.billingKeyExists(userUuid);
         return new ResponseEntity<>(
                 new ApiResponse<>(true, "성공적으로 빌링키 존재 유무를 가져왔습니다.", exists), HttpStatus.OK
+        );
+    }
+
+    // orderId로 단일 결제정보 조회
+    @GetMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<PaymentInfoResponse>> getPaymentByOrderId(@PathVariable String orderId) {
+        PaymentInfoResponse responseDto = paymentService.getPaymentByOrderId(orderId);
+        return new ResponseEntity<>(
+                new ApiResponse<>(true, "성공적으로 결제 정보를 가져왔습니다.", responseDto), HttpStatus.OK
+        );
+    }
+
+    // 해당 유저의 결제정보 목록 조회
+    @GetMapping("/user")
+    public ResponseEntity<ApiResponse<List<PaymentInfoResponse>>> getPaymentsByUser(@LoginUser User user) {
+        String userUuid = user.getUuid();
+        List<PaymentInfoResponse> responseDtos = paymentService.getPaymentsByUserUuid(userUuid);
+        return new ResponseEntity<>(
+                new ApiResponse<>(true, "성공적으로 결제 정보 목록을 가져왔습니다.", responseDtos), HttpStatus.OK
+        );
+    }
+
+    // 해당 예약의 결제정보 목록 조회
+    @GetMapping("/reservation/{reservationId}")
+    public ResponseEntity<ApiResponse<List<PaymentInfoResponse>>> getPaymentsByReservation(@PathVariable Long reservationId) {
+        List<PaymentInfoResponse> responseDtos = paymentService.getPaymentsByReservationId(reservationId);
+        return new ResponseEntity<>(
+                new ApiResponse<>(true, "성공적으로 결제 정보 목록을 가져왔습니다.", responseDtos), HttpStatus.OK
         );
     }
 }

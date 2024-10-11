@@ -4,15 +4,15 @@ import com.team25.backend.annotation.ValidInteger;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class IntegerValidator implements ConstraintValidator<ValidInteger, String> {
+public class IntegerValidator implements ConstraintValidator<ValidInteger, Integer> {
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null || value.isEmpty()) {
+    public boolean isValid(Integer value, ConstraintValidatorContext context) {
+        if (value == null) {
             return false;
         }
         try {
-            int price = Integer.parseInt(value);
+            int price = value;
             if (price < 0) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("입력값은 0 이상이어야 합니다.")

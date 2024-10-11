@@ -32,13 +32,16 @@ public class ReportService {
     // 리포트 조회
     @Transactional(readOnly = true)
     public List<ReportResponse> getReport(Long reservationId) {
-        List<Report> reports = reportRepository.findByReservation_Id(reservationId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 예약에 대한 리포트가 없습니다."));
-        ArrayList<ReportResponse> reportResponses = new ArrayList<ReportResponse>();
+        List<Report> reports = reportRepository.findByReservation_Id(reservationId);
+        if (reports.isEmpty()) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_WITHOUT_REPORT);
+        }
+        ArrayList<ReportResponse> reportResponses = new ArrayList<>();
         for (Report report : reports) {
-            new ReportResponse(report.getDoctorSummary(), report.getFrequency(),
-                report.getMedicineTime().toString(),
-                report.getTimeOfDay());
+            reportResponses.add(new ReportResponse(report.getDoctorSummary(), report.getFrequency(),
+                    report.getMedicineTime().toString(),
+                    report.getTimeOfDay())
+            );
         }
         return reportResponses;
     }

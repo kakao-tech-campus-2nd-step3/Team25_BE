@@ -9,6 +9,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -46,10 +49,17 @@ public class GlobalExceptionHandler {
             ex.getErrorCode().getHttpStatus()
         );
     }
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse<String>> handleCustomException(CustomException ex) {
+        ApiResponse<String>apiResponse = new ApiResponse<>(false,ex.getErrorCode().getMessage(),null);
+        return ResponseEntity.status(ex.getErrorCode().getStatus())
+                .body(apiResponse);
+    }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponse<String>> handleUserNotFoundException(UserNotFoundException ex) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<String>> handleGlobalException(Exception ex, WebRequest request) {
         ApiResponse<String>apiResponse = new ApiResponse<>(false, ex.getMessage(), null);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(apiResponse);
     }
 }

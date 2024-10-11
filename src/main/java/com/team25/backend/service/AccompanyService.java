@@ -30,8 +30,13 @@ public class AccompanyService {
     }
 
     public List<AccompanyResponse> getTrackingAccompanies(Long reservationId) {
-        List<Accompany> accompanies = accompanyRepository.findByReservation_id(reservationId)
-            .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        if(reservationRepository.findById(reservationId).isEmpty()) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND);
+        }
+        List<Accompany> accompanies = accompanyRepository.findByReservation_id(reservationId);
+        if(accompanies.isEmpty()) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_WITHOUT_ACCOMPANY);
+        }
 
         return accompanies.stream()
             .map(accompany -> new AccompanyResponse(

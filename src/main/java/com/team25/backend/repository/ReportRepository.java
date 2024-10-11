@@ -10,6 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReportRepository extends JpaRepository<Report, Long>,
     JpaSpecificationExecutor<Report> {
-    public Optional<List<Report>> findByReservation_Id(Long reservation);
-
+    List<Report> findByReservation_Id(Long reservation);
 }

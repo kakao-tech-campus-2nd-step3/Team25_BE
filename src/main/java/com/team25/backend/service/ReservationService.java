@@ -48,8 +48,10 @@ public class ReservationService {
 
     // 예약 전체 조회
     public List<ReservationResponse> getAllReservations(User user) {
-        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
-            .orElseThrow(() -> new ReservationException(USER_NOT_FOUND));
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid());
+        if(reservations.isEmpty()) {
+           throw  new ReservationException(USER_NOT_FOUND);
+        }
         List<ReservationResponse> responseList = new ArrayList<>();
         for (Reservation reservation : reservations) {
             responseList.add(
@@ -70,8 +72,10 @@ public class ReservationService {
     public ReservationResponse getReservationById(User user, Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
             .orElseThrow(() -> new ReservationException(RESERVATION_NOT_FOUND));
-        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
-            .orElseThrow(() -> new ReservationException(USER_HAS_NO_RESERVATIONS));
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid());
+        if(reservations.isEmpty()) {
+            throw new ReservationException(USER_NOT_FOUND);
+        }
         if (!reservations.contains(reservation)) {
             throw new ReservationException(RESERVATION_NOT_BELONG_TO_USER);
         }
@@ -128,8 +132,10 @@ public class ReservationService {
     @Transactional
     public ReservationResponse cancelReservation(User user, CancelRequest cancelRequest,
         Long reservationId) {
-        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid())
-            .orElseThrow(() -> new ReservationException(USER_NOT_FOUND));
+        List<Reservation> reservations = reservationRepository.findByUser_Uuid(user.getUuid());
+        if(reservations.isEmpty()) {
+            throw new ReservationException(USER_NOT_FOUND);
+        }
         Reservation canceledReservation = reservations.stream()
             .filter(x -> x.getId().equals(reservationId)).findFirst()
             .orElseThrow(() -> new ReservationException(RESERVATION_NOT_FOUND));

@@ -9,6 +9,7 @@ import com.team25.backend.entity.User;
 import com.team25.backend.service.ReservationService;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/reservations")
 public class ReservationController {
 
@@ -38,12 +40,12 @@ public class ReservationController {
         ), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/cancel") // 이미 취소된 것을 다시 또 취소하는 경우 에러 처리 필요
+    @PatchMapping("/cancel/{reservation_id}") // 이미 취소된 것을 다시 또 취소하는 경우 에러 처리 필요
     public ResponseEntity<ApiResponse<ReservationResponse>> cancelReservation(
-        @LoginUser User user,
+        @LoginUser User user,@PathVariable(name = "reservation_id") Long reservationId,
         @Valid @RequestBody CancelRequest cancelRequest) {
         return new ResponseEntity<>(new ApiResponse<>(true, "예약 취수가 접수되었습니다",
-            reservationService.cancelReservation(user, cancelRequest)), HttpStatus.OK);
+            reservationService.cancelReservation(user, cancelRequest,reservationId)), HttpStatus.OK);
     }
 
     @GetMapping("/{reservation_id}")

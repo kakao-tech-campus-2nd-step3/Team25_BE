@@ -101,11 +101,22 @@ public class Reservation {
     @Exclude
     private List<Report> reports = new ArrayList<>(); // 리포트
 
-    @OneToMany(mappedBy = "reservation")
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Exclude
     private List<Accompany> accompany = new ArrayList<>(); // 동행
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "patient_id", referencedColumnName = "id")
     private Patient patient;
+
+
+    public void addAccompany(Accompany accompany) {
+        this.accompany.add(accompany);
+        accompany.setReservation(this);
+    }
+
+    public void addReport(Report report) {
+        this.reports.add(report);
+        report.setReservation(this);
+    }
 }

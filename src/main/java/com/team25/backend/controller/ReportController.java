@@ -8,6 +8,7 @@ import com.team25.backend.entity.Report;
 import com.team25.backend.entity.User;
 import com.team25.backend.service.ReportService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,7 @@ public class ReportController {
     }
 
     @GetMapping("/{reservation_id}")
-    public ResponseEntity<ApiResponse<ReportResponse>> getReport(
+    public ResponseEntity<ApiResponse<List<ReportResponse>>> getReport(
         @LoginUser User user,
         @PathVariable("reservation_id") Long reservationId) {
         return new ResponseEntity<>(

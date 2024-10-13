@@ -3,12 +3,14 @@ package com.team25.backend.entity;
 import com.team25.backend.enumdomain.PatientGender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,10 +38,11 @@ public class Patient {
     private String phoneNumber;
 
     @Column(name = "patient_gender", nullable = false)
+    @Enumerated(EnumType.STRING)
     private PatientGender gender;
 
     @Column(name = "patient_birth", nullable = false)
-    private LocalDateTime birthDate;
+    private LocalDate birthDate;
 
     @Column(name = "nok_phone", nullable = false)
     private String nokPhone;

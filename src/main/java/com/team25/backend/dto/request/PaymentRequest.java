@@ -4,5 +4,6 @@ public record PaymentRequest(
         int amount,
         String goodsName,
         String cardQuota,
-        boolean useShopInterest
+        boolean useShopInterest,
+        Long reservationId
 ) {}

@@ -1,30 +1,17 @@
 package com.team25.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-
-import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Getter
-@Setter
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
 public class User {
     @Id
@@ -35,9 +22,19 @@ public class User {
     @Column(name = "username", length = 100, nullable = false)
     private String username;
 
+    @Column(name = "uuid")
+    private String uuid;
+
     @Column(name = "role")
     private String role;
 
-    @Column(name = "uuid")
-    private String uuid;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
+
+    public User(String username, String uuid, String role) {
+        this.username = username;
+        this.role = role;
+        this.uuid = uuid;
+    }
 }

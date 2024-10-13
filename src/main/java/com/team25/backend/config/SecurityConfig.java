@@ -1,8 +1,10 @@
 package com.team25.backend.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team25.backend.jwt.CustomLogoutFilter;
 import com.team25.backend.jwt.JWTFilter;
 import com.team25.backend.jwt.JWTUtil;
-import com.team25.backend.jwt.LoginFilter;
+import com.team25.backend.repository.RefreshRepository;
 import com.team25.backend.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,23 +17,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final CustomAuthenticationProvider customAuthenticationProvider;
-    private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final RefreshRepository refreshRepository;
+    private final ObjectMapper objectMapper;
 
-
-    public SecurityConfig(CustomAuthenticationProvider customAuthenticationProvider, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, UserRepository userRepository) {
-        this.customAuthenticationProvider = customAuthenticationProvider;
-        this.authenticationConfiguration = authenticationConfiguration;
+    public SecurityConfig(JWTUtil jwtUtil, UserRepository userRepository, RefreshRepository refreshRepository, ObjectMapper objectMapper) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.refreshRepository = refreshRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -44,6 +46,7 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -60,24 +63,22 @@ public class SecurityConfig {
         http
                 .httpBasic((auth) -> auth.disable());
 
+
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join", "/reissue").permitAll()
+                        .requestMatchers("/login", "/", "/join", "/reissue", "/auth/kakao/login", "/oauth2/callback/kakao").permitAll()
                         .requestMatchers("/my").hasRole("USER")
                         .anyRequest().permitAll());
 
-        // CustomAuthenticationProvider 등록
-        http
-                .authenticationProvider(customAuthenticationProvider);
-
         // JWT Filter
         http
-                .addFilterBefore(new JWTFilter(jwtUtil, userRepository), LoginFilter.class);
 
-        // Login Filter
+                .addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
+
+        // Logout Filter
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository, objectMapper), LogoutFilter.class);
 
         //세션 설정
         http

@@ -10,6 +10,6 @@ import org.springframework.validation.annotation.Validated;
 public record ReportResponse(
     String doctorSummary,
     int frequency,
-    MealTime mealTime,
+    String medicineTime,
     String timeOfDays) {
 }

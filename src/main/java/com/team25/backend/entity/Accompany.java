@@ -3,6 +3,8 @@ package com.team25.backend.entity;
 import com.team25.backend.enumdomain.AccompanyStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,6 +38,7 @@ public class Accompany {
     private Reservation reservation;
 
     @Column(name = "status")
+    @Enumerated(value = EnumType.STRING)
     private AccompanyStatus accompanyStatus;
 
     @Column(name = "latitude")
@@ -49,5 +52,12 @@ public class Accompany {
 
     @Column(name = "detail")
     private String detail;
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+        if (reservation != null) {
+            reservation.getAccompany().add(this);
+        }
+    }
 
 }

@@ -11,16 +11,16 @@ INSERT INTO users (username, uuid, role) VALUES
                                              ('카카오10', '550e8400-e29b-41d4-a716-446655440009', 'ROLE_MANAGER');
 
 INSERT INTO managers (user_id, manager_name, profile_image, career, comment, working_region, gender, is_registered) VALUES
-                                                                                                                        (1, '김철수', 'image1.jpg', '10년 경력', '성실하고 책임감이 강합니다.', '부산 해운대구', '남성', TRUE),
-                                                                                                                        (2, '이영희', 'image2.jpg', '5년 경력', '친절하게 안내합니다.', '부산 남구', '여성', TRUE),
-                                                                                                                        (3, '박민수', 'image3.jpg', '8년 경력', '정확하고 신뢰할 수 있습니다.', '부산 북구', '남성', TRUE),
-                                                                                                                        (4, '최수진', 'image4.jpg', '6년 경력', '꼼꼼하게 일 처리합니다.', '부산 동래구', '여성', TRUE),
-                                                                                                                        (5, '정지훈', 'image5.jpg', '7년 경력', '언제나 최선을 다합니다.', '부산 연제구', '남성', TRUE),
-                                                                                                                        (6, '홍길동', 'image6.jpg', '9년 경력', '고객 만족을 위해 노력합니다.', '부산 수영구', '남성', TRUE),
-                                                                                                                        (7, '윤미라', 'image7.jpg', '3년 경력', '긍정적인 에너지가 가득합니다.', '부산 사하구', '여성', TRUE),
-                                                                                                                        (8, '강동현', 'image8.jpg', '11년 경력', '신뢰할 수 있는 전문가입니다.', '부산 강서구', '남성', TRUE),
-                                                                                                                        (9, '오지훈', 'image9.jpg', '4년 경력', '언제나 밝은 모습으로 응대합니다.', '부산 기장군', '남성', TRUE),
-                                                                                                                        (10, '서지민', 'image10.jpg', '2년 경력', '세심하고 꼼꼼하게 돕겠습니다.', '부산 서구', '여성', TRUE);
+                                                                                                                        (1, '김철수', 'image1.jpg', '10년 경력', '성실하고 책임감이 강합니다.', '부산광역시 해운대구', '남성', TRUE),
+                                                                                                                        (2, '이영희', 'image2.jpg', '5년 경력', '친절하게 안내합니다.', '부산광역시 남구', '여성', TRUE),
+                                                                                                                        (3, '박민수', 'image3.jpg', '8년 경력', '정확하고 신뢰할 수 있습니다.', '부산광역시 북구', '남성', TRUE),
+                                                                                                                        (4, '최수진', 'image4.jpg', '6년 경력', '꼼꼼하게 일 처리합니다.', '부산광역시 동래구', '여성', TRUE),
+                                                                                                                        (5, '정지훈', 'image5.jpg', '7년 경력', '언제나 최선을 다합니다.', '부산광역시 연제구', '남성', TRUE),
+                                                                                                                        (6, '홍길동', 'image6.jpg', '9년 경력', '고객 만족을 위해 노력합니다.', '부산광역시 수영구', '남성', TRUE),
+                                                                                                                        (7, '윤미라', 'image7.jpg', '3년 경력', '긍정적인 에너지가 가득합니다.', '부산광역시 사하구', '여성', TRUE),
+                                                                                                                        (8, '강동현', 'image8.jpg', '11년 경력', '신뢰할 수 있는 전문가입니다.', '부산광역시 강서구', '남성', TRUE),
+                                                                                                                        (9, '오지훈', 'image9.jpg', '4년 경력', '언제나 밝은 모습으로 응대합니다.', '부산광역시 기장군', '남성', TRUE),
+                                                                                                                        (10, '서지민', 'image10.jpg', '2년 경력', '세심하고 꼼꼼하게 돕겠습니다.', '부산광역시 서구', '여성', TRUE);
 
 
 INSERT INTO working_hour (manager_id, mon_start_time, mon_end_time, tue_start_time, tue_end_time, wed_start_time, wed_end_time, thu_start_time, thu_end_time, fri_start_time, fri_end_time, sat_start_time, sat_end_time, sun_start_time, sun_end_time) VALUES

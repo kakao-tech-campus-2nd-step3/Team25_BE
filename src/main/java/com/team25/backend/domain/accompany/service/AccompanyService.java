@@ -1,17 +1,17 @@
 package com.team25.backend.domain.accompany.service;
 
-import com.team25.backend.domain.accompany.repository.AccompanyRepository;
 import com.team25.backend.domain.accompany.dto.request.AccompanyRequest;
 import com.team25.backend.domain.accompany.dto.response.AccompanyCoordinateResponse;
 import com.team25.backend.domain.accompany.dto.response.AccompanyResponse;
 import com.team25.backend.domain.accompany.entity.Accompany;
-import com.team25.backend.domain.reservation.entity.Reservation;
 import com.team25.backend.domain.accompany.enumdomain.AccompanyStatus;
-import com.team25.backend.global.exception.AccompanyErrorCode;
+import com.team25.backend.domain.accompany.repository.AccompanyRepository;
+import com.team25.backend.domain.reservation.entity.Reservation;
+import com.team25.backend.domain.reservation.repository.ReservationRepository;
 import com.team25.backend.global.exception.AccompanyException;
 import com.team25.backend.global.exception.ReservationErrorCode;
 import com.team25.backend.global.exception.ReservationException;
-import com.team25.backend.domain.reservation.repository.ReservationRepository;
+import com.team25.backend.global.exception.AccompanyErrorCode;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,7 +29,7 @@ public class AccompanyService {
     private final AccompanyRepository accompanyRepository;
 
     public AccompanyService(AccompanyRepository accompanyRepository,
-        ReservationRepository reservationRepository) {
+                            ReservationRepository reservationRepository) {
         this.reservationRepository = reservationRepository;
         this.accompanyRepository = accompanyRepository;
     }
@@ -39,7 +39,7 @@ public class AccompanyService {
         List<Accompany> accompanies = accompanyRepository.findByReservation_id(reservationId);
         checkListEmpty(accompanies);
         return accompanies.stream().map(AccompanyService::getAccompanyResponse)
-            .peek(response -> log.info("Accompany details: {}", response)).toList();
+                .peek(response -> log.info("Accompany details: {}", response)).toList();
     }
 
     public List<AccompanyCoordinateResponse> getTrackingCoordinates(Long reservationId) {
@@ -47,15 +47,15 @@ public class AccompanyService {
         List<Accompany> searchedAccompanies = accompanyRepository.findByReservation_id(reservationId);
         checkListEmpty(searchedAccompanies);
         return searchedAccompanies.stream().map(AccompanyService::getAccompanyCoordinateResponse)
-            .peek(reseponse -> log.info("Accompany details: {}", reseponse)).toList();
+                .peek(reseponse -> log.info("Accompany details: {}", reseponse)).toList();
     }
 
     public AccompanyResponse addTrackingAccompany(Long reservationId,
-        AccompanyRequest accompanyRequest) {
+                                                  AccompanyRequest accompanyRequest) {
         validateAccompanyRequest(accompanyRequest);
         LocalDateTime accompanyDateTime = getLocalDateTime(accompanyRequest);
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
-            () -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+                () -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
         Accompany track = getAccompany(accompanyRequest, accompanyDateTime);
         accompanyRepository.save(track);
         reservation.addAccompany(track);
@@ -70,7 +70,7 @@ public class AccompanyService {
 
     private static AccompanyResponse getAccompanyResponse(Accompany track) {
         return new AccompanyResponse(track.getAccompanyStatus(), track.getTime(),
-            track.getDetail());
+                track.getDetail());
     }
 
     private static AccompanyCoordinateResponse getAccompanyCoordinateResponse(Accompany track) {
@@ -78,11 +78,11 @@ public class AccompanyService {
     }
 
     private static Accompany getAccompany(AccompanyRequest accompanyRequest,
-        LocalDateTime accompanyDateTime) {
+                                          LocalDateTime accompanyDateTime) {
         return Accompany.builder().accompanyStatus(accompanyRequest.status())
-            .time(accompanyDateTime).latitude(accompanyRequest.latitude())
-            .longitude(accompanyRequest.longitude()).detail(accompanyRequest.statusDescribe())
-            .build();
+                .time(accompanyDateTime).latitude(accompanyRequest.latitude())
+                .longitude(accompanyRequest.longitude()).detail(accompanyRequest.statusDescribe())
+                .build();
     }
 
     private void checkReservationNull(Long reservationId) {
@@ -104,7 +104,7 @@ public class AccompanyService {
         if( accompanyRequest.latitude() == null || accompanyRequest.latitude() < 0 || accompanyRequest.latitude() > 90 ) {
             throw new AccompanyException(AccompanyErrorCode.INVALID_LATITUDE);
         }
-        if( accompanyRequest.longitude() == null || accompanyRequest.longitude() < 0 || accompanyRequest.longitude() > 90 ) {
+        if( accompanyRequest.longitude() == null || accompanyRequest.longitude() < 0 || accompanyRequest.longitude() > 180 ) {
             throw new AccompanyException(AccompanyErrorCode.INVALID_LONGITUDE);
         }
         if(accompanyRequest.statusDate().isEmpty()){

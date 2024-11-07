@@ -17,7 +17,8 @@ public enum ReservationErrorCode {
     CANCEL_REASON_REQUIRED(HttpStatus.BAD_REQUEST, "변심 이유를 반드시 선택해야 합니다."),
     INVALID_DATETIME_FORMAT(HttpStatus.BAD_REQUEST, "날짜 시간 형식이 올바르지 않습니다."),
     RESERVATION_WITHOUT_REPORT(HttpStatus.NOT_FOUND, "해당 예약에 대한 리포트가 없습니다."),
-    RESERVATION_WITHOUT_ACCOMPANY(HttpStatus.NOT_FOUND, "해당 예약에 대한 실시간 동행 현황 정보가 없습니다.");
+    RESERVATION_WITHOUT_ACCOMPANY(HttpStatus.NOT_FOUND, "해당 예약에 대한 실시간 동행 현황 정보가 없습니다."),
+    INVALID_RESERVATION_STATUS(HttpStatus.BAD_REQUEST,"유효하지 않은 예약 상태입니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }
